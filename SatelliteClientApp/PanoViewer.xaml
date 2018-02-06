@@ -1,0 +1,20 @@
+﻿<UserControl x:Class="SatelliteClientApp.PanoViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SatelliteClientApp"
+             x:Name="mainView"
+             mc:Ignorable="d" 
+             d:DesignHeight="200" d:DesignWidth="1000">
+    <Canvas x:Name="mainContainer" Width="{Binding ActualWidth, ElementName=mainView}"
+            Height="{Binding ActualHeight, ElementName=mainView}">
+        <Image x:Name="imgPano" Stretch="Fill"
+               Width="{Binding ActualWidth, ElementName=mainContainer}"
+              Height="{Binding ActualHeight, ElementName=mainContainer}"></Image>
+        <Rectangle x:Name="rectHighlightSegment"
+                   Visibility="Hidden"
+                   Width="30" Height="{Binding ActualHeight, ElementName=mainContainer}"
+                   Stroke="Cyan" StrokeThickness="2"></Rectangle>
+    </Canvas>
+</UserControl>
