@@ -8,8 +8,20 @@
         WindowStyle="None"
         Background="Black"
         mc:Ignorable="d"
+        x:Name="mainWindow"
+        Loaded="mainWindow_Loaded"
         Title="MainWindow" Height="350" Width="525">
-    <Grid>
+    <Grid  x:Name="grid_ViewsContainer"
+            Width="{Binding ActualWidth, ElementName=mainWindow}"
+            Height="{Binding ActualHeight, ElementName=mainWindow}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.2*"></RowDefinition>
+            <RowDefinition Height="0.8*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <local:PanoViewer Grid.Row="0" x:Name="panoViewer"></local:PanoViewer>
+        <local:HubTableViewerControl Grid.Row="1" x:Name="hubTableViewer" 
+                                     HorizontalContentAlignment="Stretch" 
+                                     VerticalContentAlignment="Stretch"></local:HubTableViewerControl>
         <Image x:Name="imgTestShower"></Image>
     </Grid>
 </Window>
