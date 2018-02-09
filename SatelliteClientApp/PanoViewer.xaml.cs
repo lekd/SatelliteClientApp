@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,11 +28,13 @@ namespace SatelliteClientApp
         {
             InitializeComponent();
         }
-        public void updatePanoImage(BitmapImage panoBmpImg)
+        public void updatePanoImage(BitmapImage panoBmpImg, double satPosInPano)
         {
             initControls();
-            imgPano.Source = panoBmpImg;
-            panoFrame = Utilities.BitmapImageToJpegBitmap(panoBmpImg);
+            Bitmap temp = Utilities.BitmapImageToJpegBitmap(panoBmpImg);
+            Bitmap rearrangedPano = rearrangePano(temp, satPosInPano);
+            panoFrame = new Bitmap(rearrangedPano);
+            imgPano.Source = Utilities.ToBitmapImage(panoFrame,ImageFormat.Jpeg);
         }
         void initControls()
         {
@@ -40,6 +43,23 @@ namespace SatelliteClientApp
                 rectHighlightSegment.Width = imgPano.Width / 8;
             }
             isInitialized = true;
+        }
+        Bitmap rearrangePano(Bitmap pano,double dividerPos)
+        {
+            double leftHalfWidth = pano.Width * dividerPos;
+            if(((int)leftHalfWidth)==0 || ((int)leftHalfWidth)==pano.Width)
+            {
+                return pano;
+            }
+            Bitmap rearrangedPano = new Bitmap(pano.Width, pano.Height);
+            Bitmap leftHalf = Utilities.CropBitmap(pano, 0, 0, (float)dividerPos, 1);
+            Bitmap rightHalf = Utilities.CropBitmap(pano, (float)dividerPos, 0, (float)(1 - dividerPos), 1);
+            using (Graphics g = Graphics.FromImage(rearrangedPano))
+            {
+                g.DrawImage(rightHalf, new PointF(0, 0));
+                g.DrawImage(leftHalf, new PointF((float)rightHalf.Width, 0));
+                return rearrangedPano;
+            }
         }
     }
 }

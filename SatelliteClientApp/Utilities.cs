@@ -136,5 +136,24 @@ namespace SatelliteClientApp
             Emgu.CV.CvInvoke.WarpPerspective(srcImg, dstImg, transformMat, new Size((int)dstBigEdge, (int)dstHeight));
             return dstImg.Bitmap;
         }
+        static public double AngleOfVector(PointF origin, PointF vectorTop,bool isIn360)
+        {
+            PointF vector = new PointF(vectorTop.X - origin.X, vectorTop.Y - origin.Y);
+            double len = Math.Sqrt(vector.X * vector.X + vector.Y * vector.Y);
+            double angle = Math.Acos(vector.X / len);
+            if(vector.Y < 0)
+            {
+                angle = -angle;
+                if(isIn360)
+                {
+                    angle += Math.PI * 2;
+                }
+            }
+            return angle;
+        }
+        static public double getRightEdgeFromHypotenuse(double hypotenuse)
+        {
+            return hypotenuse / Math.Sqrt(2);
+        }
     }
 }

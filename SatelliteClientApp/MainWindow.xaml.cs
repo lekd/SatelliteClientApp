@@ -46,13 +46,6 @@ namespace SatelliteClientApp
         {
             if(port == Properties.Settings.Default.PanoPort)
             {
-                Action displayPanoViewer = delegate
-                {
-                    BitmapImage bmpSrc = frameSrc.Clone();
-                    panoViewer.updatePanoImage(bmpSrc);
-                    
-                };
-                panoViewer.Dispatcher.Invoke(displayPanoViewer);
                 Action displayHubViewer = delegate
                 {
                     Bitmap panoBmp = Utilities.BitmapImageToJpegBitmap(frameSrc.Clone());
@@ -60,6 +53,14 @@ namespace SatelliteClientApp
                     hubTableViewer.updateTableEdges(panoBmp);
                 };
                 hubTableViewer.Dispatcher.Invoke(displayHubViewer);
+                Action displayPanoViewer = delegate
+                {
+                    BitmapImage bmpSrc = frameSrc.Clone();
+                    panoViewer.updatePanoImage(bmpSrc,hubTableViewer.SatPositionInPano);
+                    
+                };
+                panoViewer.Dispatcher.Invoke(displayPanoViewer);
+                
             }
             else if(port == Properties.Settings.Default.TablePort)
             {
@@ -67,18 +68,26 @@ namespace SatelliteClientApp
                 {
                     
                     Bitmap bmp = Utilities.BitmapImageToJpegBitmap(frameSrc);
-                    if (!hubTableViewer.WasInitialized)
-                    {
-                        double w = grid_ViewsContainer.ActualWidth;
-                        double h = grid_ViewsContainer.RowDefinitions[1].ActualHeight;
-                        hubTableViewer.initTableBoundary(bmp, w, h);
-                    }
-                    hubTableViewer.updateTableContent(bmp);
+                    double w = grid_ViewsContainer.ActualWidth;
+                    double h = grid_ViewsContainer.RowDefinitions[2].ActualHeight;
+                    hubTableViewer.updateTableContent(bmp, w, h);
                 };
                 hubTableViewer.Dispatcher.Invoke(displayAction);
             }
         }
 
-        
+        private void btn_Mode_Click(object sender, RoutedEventArgs e)
+        {
+            hubTableViewer.SwitchMode();
+            if(hubTableViewer.Mode == HubTableViewerControl.TableViewMode.NORMAL)
+            {
+                hubTableViewer.Refresh();
+                btn_Mode.Content = "ANCHOR";
+            }
+            else
+            {
+                btn_Mode.Content = "SAVE";
+            }
+        }
     }
 }

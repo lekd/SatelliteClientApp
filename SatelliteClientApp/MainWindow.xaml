@@ -11,17 +11,24 @@
         x:Name="mainWindow"
         Loaded="mainWindow_Loaded"
         Title="MainWindow" Height="350" Width="525">
-    <Grid  x:Name="grid_ViewsContainer"
+    <Canvas>
+        <Grid  x:Name="grid_ViewsContainer"
             Width="{Binding ActualWidth, ElementName=mainWindow}"
             Height="{Binding ActualHeight, ElementName=mainWindow}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="0.2*"></RowDefinition>
-            <RowDefinition Height="0.8*"></RowDefinition>
-        </Grid.RowDefinitions>
-        <local:PanoViewer Grid.Row="0" x:Name="panoViewer"></local:PanoViewer>
-        <local:HubTableViewerControl Grid.Row="1" x:Name="hubTableViewer" 
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.2*"></RowDefinition>
+                <RowDefinition Height="0.05*"></RowDefinition>
+                <RowDefinition Height="0.75*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <local:PanoViewer Grid.Row="0" x:Name="panoViewer"></local:PanoViewer>
+            <local:HubTableViewerControl Grid.Row="2" x:Name="hubTableViewer" 
                                      HorizontalContentAlignment="Stretch" 
                                      VerticalContentAlignment="Stretch"></local:HubTableViewerControl>
-        <Image x:Name="imgTestShower"></Image>
-    </Grid>
+        </Grid>
+        <Button x:Name="btn_Mode"
+                Width="60"
+                Canvas.Bottom="10" Canvas.Right="10"
+                Click="btn_Mode_Click">ANCHOR</Button>
+    </Canvas>
+    
 </Window>

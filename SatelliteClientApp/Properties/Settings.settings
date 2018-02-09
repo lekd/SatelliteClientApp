@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="PanoServer" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">127.0.0.1</Value>
+      <Value Profile="(Default)">192.168.0.100</Value>
     </Setting>
     <Setting Name="PanoPort" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">4030</Value>
@@ -13,6 +13,9 @@
     </Setting>
     <Setting Name="SatPort" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">4032</Value>
+    </Setting>
+    <Setting Name="UserFacingCam" Type="System.Int64" Scope="Application">
+      <Value Profile="(Default)">0</Value>
     </Setting>
   </Settings>
 </SettingsFile>

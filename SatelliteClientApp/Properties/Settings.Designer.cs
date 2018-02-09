@@ -25,7 +25,7 @@ namespace SatelliteClientApp.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("127.0.0.1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("192.168.0.100")]
         public string PanoServer {
             get {
                 return ((string)(this["PanoServer"]));
@@ -56,6 +56,15 @@ namespace SatelliteClientApp.Properties {
         public int SatPort {
             get {
                 return ((int)(this["SatPort"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public long UserFacingCam {
+            get {
+                return ((long)(this["UserFacingCam"]));
             }
         }
     }
