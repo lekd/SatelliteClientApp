@@ -1,0 +1,19 @@
+﻿<UserControl x:Class="SatelliteClientApp.AugmentedHubTableViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SatelliteClientApp"
+             mc:Ignorable="d" 
+             x:Name="mainWindow"
+             d:DesignHeight="500" d:DesignWidth="1000">
+    <Canvas x:Name="canvasContainer"
+            Width="{Binding With,ElementName=mainWindow}"
+            Height="{Binding Height,ElementName=mainWindow}">
+        <local:HubTableViewerControl x:Name="hubTableViewer"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center">
+
+        </local:HubTableViewerControl>
+    </Canvas>
+</UserControl>

@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 C:\Users\lkduy\Documents\Visual Studio 2015\Projects\SatelliteClientApp\SatelliteClientApp\SatelliteClientApp\App.xaml
-3-1894532710
+4-506549179
 
-14-985549598
+151189112561
 24-382403723
-HubTableViewerControl.xaml;MainWindow.xaml;PanoViewer.xaml;
+AugmentedHubTableViewer.xaml;HubTableViewerControl.xaml;MainWindow.xaml;PanoViewer.xaml;
 
-True
+False
 

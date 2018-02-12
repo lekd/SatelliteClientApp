@@ -23,6 +23,8 @@ namespace SatelliteClientApp
     /// </summary>
     public partial class HubTableViewerControl : UserControl
     {
+        public delegate void BoundaryChanged(double w, double h);
+        public delegate void EdgeFocusChanged(PointF relPos, double relAngularToSallite, double relativeW);
         public enum TableViewMode { NORMAL, SATELLITE_ANCHOR}
         public enum TablePart { LEFT, RIGHT, TOP, BOTTOM, CENTER }
         const float MAX_RELATIVE_X = 0.5f;
@@ -41,6 +43,9 @@ namespace SatelliteClientApp
         double[] cornersAngles = new double[4];
         double _tableRotation = 0;
         PointF tableAbsoluteCenter = new PointF();
+
+        public event BoundaryChanged boundaryChangeEventHandler = null;
+        public event EdgeFocusChanged edgeFocusChangeEventHandler = null;
         #region Properties & Field
         public double SatAvatarRotation
         {
@@ -124,7 +129,7 @@ namespace SatelliteClientApp
                 img_satAvatar.Visibility = Visibility.Visible;
                 string initAvatarFile = Directory.GetCurrentDirectory() + "\\Resources\\unknown_user.png";
                 updateAvatarBitmap(new Bitmap(initAvatarFile));
-                SatRelativePosition = new PointF(-0.5f, 0.5f);
+                SatRelativePosition = new PointF(0f, 0.5f);
                 
             }
             _tableContent = new Bitmap(tabContent);
@@ -219,6 +224,10 @@ namespace SatelliteClientApp
             cornersAngles[3] = Utilities.AngleOfVector(tableAbsoluteCenter, absTopRight, true);
             WasInitialized = true;
 
+            if(boundaryChangeEventHandler != null)
+            {
+                boundaryChangeEventHandler(this.Width, this.Height);
+            }
         }
         Bitmap[] segmentPanoIntoEdges(Bitmap panoImg)
         {
@@ -263,6 +272,12 @@ namespace SatelliteClientApp
         }
 
         #region Vector-Angle conversion
+        public double getAngularPositionRelativeToSatellite(PointF relativeP, PointF satelliteRelativePos)
+        {
+            double satAngle = Utilities.AngleOfVector(new PointF(0, 0), satelliteRelativePos, false);
+            double targetAngle = Utilities.AngleOfVector(new PointF(0, 0), relativeP, false);
+            return targetAngle - satAngle;
+        }
         public double getPositionInPanoFromRel2D(PointF relPos)
         {
             double angle = Utilities.AngleOfVector(new PointF(0, 0), relPos, false);
@@ -440,6 +455,14 @@ namespace SatelliteClientApp
                     {
                         positionAvatar(relativeToTable);
                     }
+                    else
+                    {
+                        double relativeAngularDif = getAngularPositionRelativeToSatellite(relativeToTable, SatRelativePosition);
+                        if(edgeFocusChangeEventHandler != null)
+                        {
+                            edgeFocusChangeEventHandler(relativeToTable, relativeAngularDif, 1.0/8);
+                        }
+                    }
                 }
             }
             else
@@ -459,6 +482,14 @@ namespace SatelliteClientApp
                     if (_viewMode == TableViewMode.SATELLITE_ANCHOR)
                     {
                         SatRelativePosition = relativeToTable;
+                    }
+                    else
+                    {
+                        double relativeAngularDif = getAngularPositionRelativeToSatellite(relativeToTable, SatRelativePosition);
+                        if (edgeFocusChangeEventHandler != null)
+                        {
+                            edgeFocusChangeEventHandler(relativeToTable, relativeAngularDif, 1.0/8);
+                        }
                     }
                 }
             }

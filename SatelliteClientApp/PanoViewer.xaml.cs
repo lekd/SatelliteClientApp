@@ -61,5 +61,20 @@ namespace SatelliteClientApp
                 return rearrangedPano;
             }
         }
+        public void updateFocusWindow(double relativeAngularToSatellite,double relativeW)
+        {
+            double relativeAngularInPercent = relativeAngularToSatellite /( Math.PI * 2);
+            if(relativeAngularInPercent < 0)
+            {
+                relativeAngularInPercent += 1;
+            }
+            double centerX = relativeAngularInPercent * imgPano.Width;
+            double w = relativeW * imgPano.Width;
+            double left = centerX - w / 2;
+            rectHighlightSegment.SetValue(Canvas.LeftProperty, left);
+            rectHighlightSegment.SetValue(Canvas.TopProperty, (double)0);
+            rectHighlightSegment.Width = w;
+            rectHighlightSegment.Opacity = 1.0;
+        }
     }
 }
