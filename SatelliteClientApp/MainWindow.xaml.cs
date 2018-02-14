@@ -36,13 +36,14 @@ namespace SatelliteClientApp
             tableContentStreamClient.Start();
 
             hubTableViewer.edgeFocusChangedEventHandler += HubTableViewer_edgeFocusChangedEventHandler;
+            hubTableViewer.PanoFocusBoundary = panoViewer.FocusBoundary;
         }
 
         private void mainWindow_Loaded(object sender, RoutedEventArgs e)
         {
 
             double w = grid_ViewsContainer.ActualWidth;
-            double h = grid_ViewsContainer.RowDefinitions[2].ActualHeight;
+            double h = grid_ViewsContainer.RowDefinitions[1].ActualHeight;
             hubTableViewer.setWidth(w);
             hubTableViewer.setHeight(h);
             //panoStreamClient.Start();
@@ -75,7 +76,7 @@ namespace SatelliteClientApp
                     
                     Bitmap bmp = Utilities.BitmapImageToJpegBitmap(frameSrc);
                     double w = grid_ViewsContainer.ActualWidth;
-                    double h = grid_ViewsContainer.RowDefinitions[2].ActualHeight;
+                    double h = grid_ViewsContainer.RowDefinitions[1].ActualHeight;
                     hubTableViewer.updateTableContent(bmp, w, h);
                 };
                 hubTableViewer.Dispatcher.Invoke(displayAction);
@@ -100,6 +101,7 @@ namespace SatelliteClientApp
         private void HubTableViewer_edgeFocusChangedEventHandler(PointF relPos, double relAngularToSallite, double relativeW)
         {
             panoViewer.updateFocusWindow(relAngularToSallite, relativeW);
+            hubTableViewer.displayPanoBubbleLink(panoViewer.FocusBoundary);
         }
 
         #endregion

@@ -12,6 +12,7 @@
             Width="{Binding ActualWidth, ElementName=mainView}"
             Height="{Binding ActualHeight, ElementName=mainView}">
         <Grid x:Name="grid_TableContainer" 
+              Opacity="0.5"
               Width="{Binding ActualWidth, ElementName=mainContainer}"
               Height="{Binding ActualHeight, ElementName=mainContainer}">
             <Grid.RowDefinitions>
@@ -28,33 +29,32 @@
                    Stretch="Fill"
                    MouseLeftButtonDown="TableMouseUpDownEventHandler"
                    MouseMove="TableMouseMoveEventHandler"
-                   MouseLeftButtonUp="TableMouseUpDownEventHandler"></Image>
+                   MouseLeftButtonUp="TableMouseLeftButtonUp"></Image>
             <Image x:Name="img_EdgeTop" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Stretch="Fill" 
                    MouseLeftButtonDown="TableMouseUpDownEventHandler"
                    MouseMove="TableMouseMoveEventHandler"
-                   MouseLeftButtonUp="TableMouseUpDownEventHandler"></Image>
+                   MouseLeftButtonUp="TableMouseLeftButtonUp"></Image>
             <Image x:Name="img_EdgeLeft" Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" Stretch="Fill"
                    MouseLeftButtonDown="TableMouseUpDownEventHandler"
                    MouseMove="TableMouseMoveEventHandler"
-                   MouseLeftButtonUp="TableMouseUpDownEventHandler"
-                   ></Image>
+                   MouseLeftButtonUp="TableMouseLeftButtonUp"></Image>
             <Image x:Name="img_EdgeRight" Grid.Row="0" Grid.Column="2" Grid.RowSpan="3" Stretch="Fill"
                    MouseLeftButtonDown="TableMouseUpDownEventHandler"
                    MouseMove="TableMouseMoveEventHandler"
-                   MouseLeftButtonUp="TableMouseUpDownEventHandler"></Image>
+                   MouseLeftButtonUp="TableMouseLeftButtonUp"></Image>
             <Image x:Name="img_EdgeBottom" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Stretch="Fill"
                    MouseLeftButtonDown="TableMouseUpDownEventHandler"
                    MouseMove="TableMouseMoveEventHandler"
-                   MouseLeftButtonUp="TableMouseUpDownEventHandler"></Image>
+                   MouseLeftButtonUp="TableMouseLeftButtonUp"></Image>
         </Grid>
         <Image x:Name="img_EdgeFocus" Stretch="Fill"
-               Visibility="Hidden"></Image>
+               IsHitTestVisible="False"
+               Opacity="0"></Image>
+        
         <Image x:Name="img_satAvatar" Stretch="Fill"
                Source="Resources/unknown_user.png"
                Visibility="Hidden"
-               IsHitTestVisible="False"
-               ></Image>
-        
+               IsHitTestVisible="False"></Image>
     </Canvas>
     
 </UserControl>

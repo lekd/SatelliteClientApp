@@ -11,6 +11,7 @@ using Emgu.CV.Structure;
 
 namespace SatelliteClientApp
 {
+    public enum BendingDirection { None, LeftUp, LeftDown, RightUp, RightDown}
     public class Utilities
     {
         public static BitmapImage ToBitmapImage(Bitmap bitmap, ImageFormat imgFormat)
@@ -154,6 +155,158 @@ namespace SatelliteClientApp
         static public double getRightEdgeFromHypotenuse(double hypotenuse)
         {
             return hypotenuse / Math.Sqrt(2);
+        }
+        static public Bitmap DrawBendableRectangle(double defWidth,double defHeight,double actualWidth,BendingDirection bendDirection)
+        {
+            double actualHeight = (defWidth - actualWidth) ;
+            actualHeight = actualHeight >= defHeight ? actualHeight : defHeight;
+            Bitmap bmp = new Bitmap((int)Math.Ceiling(actualWidth), (int)Math.Ceiling(actualHeight));
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                SolidBrush transparentBrush = new SolidBrush(Color.Transparent);
+                SolidBrush semiOpaqueBrush = new SolidBrush(Color.FromArgb(50, Color.White));
+                g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
+                g.FillRectangle(transparentBrush, new Rectangle(0, 0, bmp.Width, bmp.Height));
+                Pen linePen = new Pen(new SolidBrush(Color.Cyan), 2.0f);
+                
+                g.FillRectangle(semiOpaqueBrush, new Rectangle(0, 0, bmp.Width, bmp.Height));
+                g.DrawRectangle(linePen, new Rectangle(0, 0, bmp.Width, bmp.Height));
+                Pen transparentPen = new Pen(transparentBrush, 2.0f);
+                RectangleF missingArea = new RectangleF();
+                if (bendDirection == BendingDirection.LeftUp)
+                {
+                    missingArea.X = (float)defHeight;
+                    missingArea.Y = 0;
+                    missingArea.Width = (float)(actualWidth - defHeight);
+                    missingArea.Height = (float)(actualHeight - defHeight);
+                    g.FillRectangle(transparentBrush, missingArea.Left, missingArea.Top, missingArea.Width, missingArea.Height);
+                    g.DrawRectangle(linePen, missingArea.X, missingArea.Y, missingArea.Width, missingArea.Height);
+                    //cover unnecessary edges with transparent
+                    if (missingArea.Width > 0 && missingArea.Height > 0)
+                    {
+                        g.DrawLine(transparentPen, missingArea.Left, missingArea.Top, missingArea.Right, missingArea.Top);
+                        g.DrawLine(transparentPen, missingArea.Right, missingArea.Top, missingArea.Right, missingArea.Bottom);
+                    }
+                    return bmp;
+                }
+                else if(bendDirection == BendingDirection.LeftDown)
+                {
+                    missingArea.X = (float)defHeight;
+                    missingArea.Y = (float)defHeight;
+                    missingArea.Width = (float)(actualWidth - missingArea.X);
+                    missingArea.Height = (float)(actualHeight - missingArea.Y);
+                    g.FillRectangle(transparentBrush, missingArea.Left, missingArea.Top, missingArea.Width, missingArea.Height);
+                    g.DrawRectangle(linePen, missingArea.X, missingArea.Y, missingArea.Width, missingArea.Height);
+                    //cover unnecessary edges with transparent
+                    if (missingArea.Width > 0 && missingArea.Height > 0)
+                    {
+                        g.DrawLine(transparentPen, missingArea.Left, missingArea.Bottom, missingArea.Right, missingArea.Bottom);
+                        g.DrawLine(transparentPen, missingArea.Right, missingArea.Top, missingArea.Right, missingArea.Bottom);
+                    }
+                    return bmp;
+                }
+                else if(bendDirection == BendingDirection.RightUp)
+                {
+                    missingArea.X = 0;
+                    missingArea.Y = 0;
+                    missingArea.Width = (float)(actualWidth - defHeight);
+                    missingArea.Height = (float)(actualHeight - defHeight);
+                    g.FillRectangle(transparentBrush, missingArea.Left, missingArea.Top, missingArea.Width, missingArea.Height);
+                    g.DrawRectangle(linePen, missingArea.X, missingArea.Y, missingArea.Width, missingArea.Height);
+                    //cover unnecessary edges with transparent
+                    if (missingArea.Width > 0 && missingArea.Height > 0)
+                    {
+                        g.DrawLine(transparentPen, missingArea.Left, missingArea.Top, missingArea.Right, missingArea.Top);
+                        g.DrawLine(transparentPen, missingArea.Left, missingArea.Top, missingArea.Left, missingArea.Bottom);
+                    }
+                    return bmp;
+                }
+                else if(bendDirection == BendingDirection.RightDown)
+                {
+                    missingArea.X = 0;
+                    missingArea.Y = (float)(defHeight);
+                    missingArea.Width = (float)(actualWidth - defHeight);
+                    missingArea.Height = (float)(actualHeight - defHeight);
+                    g.FillRectangle(transparentBrush, missingArea.Left, missingArea.Top, missingArea.Width, missingArea.Height);
+                    g.DrawRectangle(linePen, missingArea.X, missingArea.Y, missingArea.Width, missingArea.Height);
+                    //cover unnecessary edges with transparent
+                    if (missingArea.Width > 0 && missingArea.Height > 0)
+                    {
+                        g.DrawLine(transparentPen, missingArea.Left, missingArea.Bottom, missingArea.Right, missingArea.Bottom);
+                        g.DrawLine(transparentPen, missingArea.Left, missingArea.Top, missingArea.Left, missingArea.Bottom);
+                    }
+                    return bmp;
+                }
+
+            }
+            return bmp;
+        }
+        public static double getLeftMostOfPolygon(Point[] polygonVertices)
+        {
+            double minX = polygonVertices[0].X;
+            for(int i=0; i< polygonVertices.Length; i++)
+            {
+                if(polygonVertices[i].X < minX)
+                {
+                    minX = polygonVertices[i].X;
+                }
+            }
+            return minX;
+        }
+        public static double getRightMostOfPolygon(Point[] polygonVertices)
+        {
+            double maxX = polygonVertices[0].X;
+            for (int i = 0; i < polygonVertices.Length; i++)
+            {
+                if (polygonVertices[i].X > maxX)
+                {
+                    maxX = polygonVertices[i].X;
+                }
+            }
+            return maxX;
+        }
+        public static double getTopMostOfPolygon(Point[] polygonVertices)
+        {
+            double minY = polygonVertices[0].Y;
+            for (int i = 0; i < polygonVertices.Length; i++)
+            {
+                if (polygonVertices[i].Y < minY)
+                {
+                    minY= polygonVertices[i].Y;
+                }
+            }
+            return minY;
+        }
+        public static double getBottomMostOfPolygon(Point[] polygonVertices)
+        {
+            double maxY = polygonVertices[0].Y;
+            for (int i = 0; i < polygonVertices.Length; i++)
+            {
+                if (polygonVertices[i].Y > maxY)
+                {
+                    maxY = polygonVertices[i].Y;
+                }
+            }
+            return maxY;
+        }
+        public static Bitmap DrawTriangle(Point[] vertices)
+        {
+            double left = getLeftMostOfPolygon(vertices);
+            double top = getTopMostOfPolygon(vertices);
+            double right = getRightMostOfPolygon(vertices);
+            double bottom = getBottomMostOfPolygon(vertices);
+            double w = right - left;
+            double h = bottom - top;
+            Bitmap bmp = new Bitmap((int)Math.Ceiling(w), (int)Math.Ceiling(h));
+            SolidBrush transparentBrush = new SolidBrush(Color.Transparent);
+            SolidBrush semiCyanBrush = new SolidBrush(Color.FromArgb(100, Color.Cyan));
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                g.FillRectangle(transparentBrush, new Rectangle(0, 0, bmp.Width, bmp.Height));
+                g.FillPolygon(semiCyanBrush, vertices);
+            }
+            return bmp;
         }
     }
 }

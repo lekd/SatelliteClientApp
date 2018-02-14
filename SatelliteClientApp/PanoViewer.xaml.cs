@@ -11,6 +11,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -24,6 +25,14 @@ namespace SatelliteClientApp
     {
         Bitmap panoFrame;
         bool isInitialized = false;
+        private Rect focusBoundary = new Rect();
+        public Rect FocusBoundary
+        {
+            get
+            {
+                return focusBoundary;
+            }
+        }
         public PanoViewer()
         {
             InitializeComponent();
@@ -74,7 +83,25 @@ namespace SatelliteClientApp
             rectHighlightSegment.SetValue(Canvas.LeftProperty, left);
             rectHighlightSegment.SetValue(Canvas.TopProperty, (double)0);
             rectHighlightSegment.Width = w;
+            rectHighlightSegment.BeginAnimation(UIElement.OpacityProperty, null);
             rectHighlightSegment.Opacity = 1.0;
+
+            //start fade-out animation
+            var fadeOutAnim = new DoubleAnimation
+            {
+                From = 1,
+                To = 0,
+                BeginTime = TimeSpan.FromSeconds(1),
+                Duration = TimeSpan.FromSeconds(2),
+                FillBehavior = FillBehavior.Stop
+            };
+            fadeOutAnim.Completed += (s, a) => rectHighlightSegment.Opacity = 0;
+            rectHighlightSegment.BeginAnimation(UIElement.OpacityProperty, fadeOutAnim);
+
+            focusBoundary.X = left/imgPano.Width;
+            focusBoundary.Width = w/imgPano.Width;
+            focusBoundary.Y = 0;
+            focusBoundary.Height = rectHighlightSegment.Height/imgPano.Width;
         }
     }
 }

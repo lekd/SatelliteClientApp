@@ -12,6 +12,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -29,6 +30,8 @@ namespace SatelliteClientApp
         public enum TablePart { LEFT, RIGHT, TOP, BOTTOM, CENTER }
         const float MAX_RELATIVE_X = 0.5f;
         const float MAX_RELATIVE_Y = 0.5f;
+        private System.Windows.Size defaultFocusWindowSize = new System.Windows.Size();
+
         Bitmap _tableContent;
         Bitmap _satAvatarBmp = new Bitmap(1, 1);
         PointF _satRelativePos = new PointF(-0.5f, -0.5f);
@@ -80,6 +83,10 @@ namespace SatelliteClientApp
             }
         }
 
+        public PointF RelativeEdgeFocusCenter
+        {
+            get; set;
+        }
         public double TableRotation
         {
             get
@@ -117,6 +124,10 @@ namespace SatelliteClientApp
         public void Refresh()
         {
             TableRotation = getTableRotationAccordingToSatellitePosition(SatRelativePosition);
+        }
+        public void resetMouseState()
+        {
+            isMouseDownOnEdge = false;
         }
         #endregion
         #region display information
@@ -160,6 +171,148 @@ namespace SatelliteClientApp
             img_EdgeLeft.Source = leftSrc;
             img_EdgeLeft.Tag = edgesBmps[3];
 
+        }
+        void updateEdgeFocus(PointF relativePos)
+        {
+            TablePart edge = belongToTableEdge(relativePos);
+            Bitmap focusFrame = null;
+            BendingDirection bendDirection = BendingDirection.None;
+            double actualFocusHeight = 0;
+            double actualFocusWidth = 0;
+            PointF absFocusPos = new PointF();
+            if (edge == TablePart.TOP)
+            {
+                double absX = (relativePos.X + 0.5) * this.Width;
+                if(absX - defaultFocusWindowSize.Width/2 < 0)
+                {
+                    actualFocusWidth = absX + defaultFocusWindowSize.Width / 2;
+                    bendDirection = BendingDirection.LeftDown;
+                    absFocusPos.X = 0;
+                    absFocusPos.Y = 0;
+                }
+                else if(absX + defaultFocusWindowSize.Width/2 > this.Width)
+                {   
+                    actualFocusWidth =  this.Width - (absX - defaultFocusWindowSize.Width / 2);
+                    bendDirection = BendingDirection.RightDown;
+                    absFocusPos.X = (float)(this.Width - actualFocusWidth);
+                    absFocusPos.Y = 0;
+                }
+                else
+                {
+                    actualFocusWidth = defaultFocusWindowSize.Width;
+                    absFocusPos.X = (float)(absX - actualFocusWidth / 2);
+                    absFocusPos.Y = 0;
+                }
+                focusFrame = Utilities.DrawBendableRectangle(defaultFocusWindowSize.Width, defaultFocusWindowSize.Height,
+                                                            actualFocusWidth, bendDirection);
+            }
+            else if(edge == TablePart.BOTTOM)
+            {
+                double absX = (relativePos.X + 0.5) * this.Width;
+                if (absX - defaultFocusWindowSize.Width / 2 < 0)
+                {
+                    actualFocusWidth = absX + defaultFocusWindowSize.Width / 2;
+                    actualFocusHeight = defaultFocusWindowSize.Width - actualFocusWidth;
+                    actualFocusHeight = actualFocusHeight > defaultFocusWindowSize.Height ? actualFocusHeight : defaultFocusWindowSize.Height;
+                    bendDirection = BendingDirection.LeftUp;
+                    absFocusPos.X = 0;
+                    absFocusPos.Y = (float)(this.Height - actualFocusHeight);
+                }
+                else if (absX + defaultFocusWindowSize.Width / 2 > this.Width)
+                {
+                    actualFocusWidth = this.Width - (absX - defaultFocusWindowSize.Width / 2);
+                    actualFocusHeight = defaultFocusWindowSize.Width - actualFocusWidth;
+                    actualFocusHeight = actualFocusHeight > defaultFocusWindowSize.Height ? actualFocusHeight : defaultFocusWindowSize.Height;
+                    bendDirection = BendingDirection.RightUp;
+                    absFocusPos.X = (float)(this.Width - actualFocusWidth);
+                    absFocusPos.Y = (float)(this.Height - actualFocusHeight);
+                }
+                else
+                {
+                    actualFocusWidth = defaultFocusWindowSize.Width;
+                    absFocusPos.Y = (float)(this.Height - defaultFocusWindowSize.Height);
+                    absFocusPos.X = (float)(absX - defaultFocusWindowSize.Width / 2);
+                }
+                focusFrame = Utilities.DrawBendableRectangle(defaultFocusWindowSize.Width, defaultFocusWindowSize.Height,
+                                                             actualFocusWidth, bendDirection);
+            }
+            else if(edge == TablePart.LEFT)
+            {
+                double absY = (relativePos.Y + 0.5) * this.Height;
+                //here due to rotated 90 degree, the height of focus window is actually the width of the default size
+                if (absY - defaultFocusWindowSize.Width/2 < 0)
+                {
+                    actualFocusHeight = absY + defaultFocusWindowSize.Width/2;
+                    actualFocusWidth = defaultFocusWindowSize.Width - actualFocusHeight;
+                    actualFocusWidth = actualFocusWidth > defaultFocusWindowSize.Height ? actualFocusWidth : defaultFocusWindowSize.Height;
+                    bendDirection = BendingDirection.LeftDown;
+                    focusFrame = Utilities.DrawBendableRectangle(defaultFocusWindowSize.Width, defaultFocusWindowSize.Height,
+                                                             actualFocusWidth, bendDirection);
+                    absFocusPos.X = 0;
+                    absFocusPos.Y = 0;
+                }
+                else if(absY + defaultFocusWindowSize.Width/2 > this.Height)
+                {
+                    actualFocusHeight = this.Height - (absY - defaultFocusWindowSize.Width / 2);
+                    actualFocusWidth = defaultFocusWindowSize.Width - actualFocusHeight;
+                    actualFocusWidth = actualFocusWidth > defaultFocusWindowSize.Height ? actualFocusWidth : defaultFocusWindowSize.Height;
+                    bendDirection = BendingDirection.LeftUp;
+                    focusFrame = Utilities.DrawBendableRectangle(defaultFocusWindowSize.Width, defaultFocusWindowSize.Height,
+                                                             actualFocusWidth, bendDirection);
+                    absFocusPos.X = 0;
+                    absFocusPos.Y = (float)(this.Height - actualFocusHeight);
+                }
+                else
+                {
+                    focusFrame = Utilities.DrawBendableRectangle(defaultFocusWindowSize.Height, defaultFocusWindowSize.Width,
+                                                                   defaultFocusWindowSize.Height, BendingDirection.None);
+                    absFocusPos.X = 0;
+                    absFocusPos.Y = (float)(absY - defaultFocusWindowSize.Width / 2);
+                }
+            }
+            else if(edge == TablePart.RIGHT)
+            {
+                double absY = (relativePos.Y + 0.5) * this.Height;
+                //here due to rotated 90 degree, the height of focus window is actually the width of the default size
+                if (absY - defaultFocusWindowSize.Width / 2 < 0)
+                {
+                    actualFocusHeight = absY + defaultFocusWindowSize.Width / 2;
+                    actualFocusWidth = defaultFocusWindowSize.Width - actualFocusHeight;
+                    actualFocusWidth = actualFocusWidth > defaultFocusWindowSize.Height ? actualFocusWidth : defaultFocusWindowSize.Height;
+                    bendDirection = BendingDirection.RightDown;
+                    focusFrame = Utilities.DrawBendableRectangle(defaultFocusWindowSize.Width, defaultFocusWindowSize.Height,
+                                                             actualFocusWidth, bendDirection);
+                    absFocusPos.Y = 0;
+                    absFocusPos.X = (float)(this.Width - actualFocusWidth);
+                }
+                else if (absY + defaultFocusWindowSize.Width / 2 > this.Height)
+                {
+                    double oddY = absY + defaultFocusWindowSize.Width / 2 - this.Height;
+                    actualFocusHeight = this.Height - (absY - defaultFocusWindowSize.Width / 2);
+                    actualFocusWidth = defaultFocusWindowSize.Width - actualFocusHeight;
+                    actualFocusWidth = actualFocusWidth > defaultFocusWindowSize.Height ? actualFocusWidth : defaultFocusWindowSize.Height;
+                    bendDirection = BendingDirection.RightUp;
+                    focusFrame = Utilities.DrawBendableRectangle(defaultFocusWindowSize.Width, defaultFocusWindowSize.Height,
+                                                             actualFocusWidth, bendDirection);
+                    absFocusPos.Y = (float)(this.Height - actualFocusHeight);
+                    absFocusPos.X = (float)(this.Width - actualFocusWidth);
+                }
+                else
+                {
+                    focusFrame = Utilities.DrawBendableRectangle(defaultFocusWindowSize.Height, defaultFocusWindowSize.Width,
+                                                                   defaultFocusWindowSize.Height, BendingDirection.None);
+                    absFocusPos.X = (float)(this.Width - defaultFocusWindowSize.Height);
+                    absFocusPos.Y = (float)(absY - defaultFocusWindowSize.Width / 2);
+                }
+            }
+            img_EdgeFocus.Source = Utilities.ToBitmapImage(focusFrame, ImageFormat.Png);
+            img_EdgeFocus.Width = focusFrame.Width;
+            img_EdgeFocus.Height = focusFrame.Height;
+            img_EdgeFocus.SetValue(Canvas.LeftProperty, (double)absFocusPos.X);
+            img_EdgeFocus.SetValue(Canvas.TopProperty, (double)absFocusPos.Y);
+            img_EdgeFocus.BeginAnimation(UIElement.OpacityProperty, null);
+            img_EdgeFocus.Opacity = 1.0;
+            
         }
         #endregion
         #region satellite avatar
@@ -228,6 +381,12 @@ namespace SatelliteClientApp
             {
                 boundaryChangeEventHandler(this.Width, this.Height);
             }
+
+            defaultFocusWindowSize.Width = (this.Width + this.Height) * 2 / 8;
+            defaultFocusWindowSize.Height = edgeThick;
+
+            mainContainer.Width = this.Width;
+            mainContainer.Height = this.Height;
         }
         Bitmap[] segmentPanoIntoEdges(Bitmap panoImg)
         {
@@ -270,7 +429,7 @@ namespace SatelliteClientApp
             edges[2] = Utilities.rotateBitmapQuadraticAngle(edges[2], 180);
             return edges;
         }
-
+        
         #region Vector-Angle conversion
         public double getAngularPositionRelativeToSatellite(PointF relativeP, PointF satelliteRelativePos)
         {
@@ -380,6 +539,15 @@ namespace SatelliteClientApp
             }
             return 0;
         }
+        public PointF getCenterPointOfEdgeFocus(PointF relativePos)
+        {
+            double midHorizontalBorderLen = (this.Width + img_TableContent.Width) / 2;
+            double midVerticalBorderLen = (this.Height + img_TableContent.Height) / 2;
+            PointF center = new PointF();
+            center.X = (float)(tableAbsoluteCenter.X + relativePos.X * midHorizontalBorderLen);
+            center.Y = (float)(tableAbsoluteCenter.Y + relativePos.Y * midVerticalBorderLen);
+            return center;
+        }
         #endregion
         #region logic checking
         public TablePart belongToTableEdge(double angleAroundTable, double[] cornersAngles)
@@ -457,17 +625,15 @@ namespace SatelliteClientApp
                     }
                     else
                     {
+                        RelativeEdgeFocusCenter = relativeToTable;
                         double relativeAngularDif = getAngularPositionRelativeToSatellite(relativeToTable, SatRelativePosition);
+                        updateEdgeFocus(relativeToTable);
                         if(edgeFocusChangeEventHandler != null)
                         {
                             edgeFocusChangeEventHandler(relativeToTable, relativeAngularDif, 1.0/8);
                         }
                     }
                 }
-            }
-            else
-            {
-                isMouseDownOnEdge = false;
             }
         }
         private void TableMouseMoveEventHandler(object sender, MouseEventArgs e)
@@ -485,7 +651,9 @@ namespace SatelliteClientApp
                     }
                     else
                     {
+                        RelativeEdgeFocusCenter = relativeToTable;
                         double relativeAngularDif = getAngularPositionRelativeToSatellite(relativeToTable, SatRelativePosition);
+                        updateEdgeFocus(relativeToTable);
                         if (edgeFocusChangeEventHandler != null)
                         {
                             edgeFocusChangeEventHandler(relativeToTable, relativeAngularDif, 1.0/8);
@@ -495,7 +663,27 @@ namespace SatelliteClientApp
             }
             
         }
-        #endregion
+        private void TableMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            //start fade-out animation
+            if(isMouseDownOnEdge)
+            { 
+                var fadeOutAnim = new DoubleAnimation
+                {
+                    From = 1,
+                    To = 0,
+                    BeginTime = TimeSpan.FromSeconds(1),
+                    Duration = TimeSpan.FromSeconds(2),
+                    FillBehavior = FillBehavior.Stop
+                };
+                fadeOutAnim.Completed += (s, a) => img_EdgeFocus.Opacity = 0;
+                img_EdgeFocus.BeginAnimation(UIElement.OpacityProperty, fadeOutAnim);
 
+            }
+            isMouseDownOnEdge = false;
+        }
+        
+
+        #endregion
     }
 }

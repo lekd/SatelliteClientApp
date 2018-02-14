@@ -7,13 +7,31 @@
              mc:Ignorable="d" 
              x:Name="mainWindow"
              d:DesignHeight="500" d:DesignWidth="1000">
-    <Canvas x:Name="canvasContainer"
+    <Grid
+        Width="{Binding With,ElementName=mainWindow}"
+        Height="{Binding Height,ElementName=mainWindow}">
+        <Canvas x:Name="blankCanvas"
+                Background="Black"
+                Width="{Binding With,ElementName=mainWindow}"
+                Height="{Binding Height,ElementName=mainWindow}"
+                MouseLeftButtonDown="blankCanvas_MouseLeftButtonDown"
+                MouseLeftButtonUp="blankCanvas_MouseLeftButtonUp">
+        </Canvas>
+        <Canvas x:Name="canvasContainer"
             Width="{Binding With,ElementName=mainWindow}"
             Height="{Binding Height,ElementName=mainWindow}">
-        <local:HubTableViewerControl x:Name="hubTableViewer"
-                                     HorizontalAlignment="Center"
-                                     VerticalAlignment="Center">
+            <local:HubTableViewerControl x:Name="hubTableViewer"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center">
 
-        </local:HubTableViewerControl>
-    </Canvas>
+            </local:HubTableViewerControl>
+            <Image x:Name="img_EdgeFocusLink"
+               IsHitTestVisible="False"
+               Opacity="0"></Image>
+            <Image x:Name="img_TableFocusLink"
+               IsHitTestVisible="False"
+               Opacity="0"></Image>
+        </Canvas>
+    </Grid>
+    
 </UserControl>

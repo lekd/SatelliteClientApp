@@ -17,8 +17,7 @@
             Height="{Binding ActualHeight, ElementName=mainWindow}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="0.2*"></RowDefinition>
-                <RowDefinition Height="0.05*"></RowDefinition>
-                <RowDefinition Height="0.75*"></RowDefinition>
+                <RowDefinition Height="0.8*"></RowDefinition>
             </Grid.RowDefinitions>
             <local:PanoViewer Grid.Row="0" x:Name="panoViewer"></local:PanoViewer>
             <!--
@@ -26,7 +25,7 @@
                                      HorizontalContentAlignment="Stretch" 
                                      VerticalContentAlignment="Stretch"></local:HubTableViewerControl>
             -->
-            <local:AugmentedHubTableViewer Grid.Row="2" x:Name="hubTableViewer">
+            <local:AugmentedHubTableViewer Grid.Row="1" x:Name="hubTableViewer">
                 
             </local:AugmentedHubTableViewer>
         </Grid>
