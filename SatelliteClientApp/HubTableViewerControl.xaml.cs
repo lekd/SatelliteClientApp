@@ -31,6 +31,7 @@ namespace SatelliteClientApp
         const float MAX_RELATIVE_X = 0.5f;
         const float MAX_RELATIVE_Y = 0.5f;
         private System.Windows.Size defaultFocusWindowSize = new System.Windows.Size();
+        private System.Windows.Size RelativeTableFocusSize = new System.Windows.Size(0.2f, 0.2f);
 
         Bitmap _tableContent;
         Bitmap _satAvatarBmp = new Bitmap(1, 1);
@@ -49,6 +50,8 @@ namespace SatelliteClientApp
 
         public event BoundaryChanged boundaryChangeEventHandler = null;
         public event EdgeFocusChanged edgeFocusChangeEventHandler = null;
+
+        private Bitmap _circleMask;
         #region Properties & Field
         public double SatAvatarRotation
         {
@@ -87,6 +90,10 @@ namespace SatelliteClientApp
         {
             get; set;
         }
+        public PointF RelativeContentFocusCenter
+        {
+            get; set;
+        }
         public double TableRotation
         {
             get
@@ -101,6 +108,29 @@ namespace SatelliteClientApp
             }
         }
         
+        public Bitmap CircleMask
+        {
+            get
+            {
+                if(_circleMask == null)
+                {
+                    _circleMask = new Bitmap(300, 300);
+                    using (var g = Graphics.FromImage(_circleMask))
+                    {
+                        SolidBrush whiteBrush = new SolidBrush(System.Drawing.Color.White);
+                        SolidBrush transparentBrush = new SolidBrush(System.Drawing.Color.Transparent);
+                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                        g.FillRectangle(transparentBrush, new RectangleF(0, 0, _circleMask.Width, _circleMask.Height));
+                        g.FillEllipse(whiteBrush, new RectangleF(0, 0, _circleMask.Width, _circleMask.Height));
+                    }
+                }
+                return _circleMask;
+            }
+            set
+            {
+                _circleMask = value;
+            }
+        }
         #endregion
         public HubTableViewerControl()
         {
@@ -128,10 +158,11 @@ namespace SatelliteClientApp
         public void resetMouseState()
         {
             isMouseDownOnEdge = false;
+            isMouseDownOnTable = false;
         }
         #endregion
         #region display information
-        #region table related
+        #region table content related
         public void updateTableContent(Bitmap tabContent, double maxW, double maxH)
         {
             if (tabContent.Width * 1.0 / tabContent.Height != _tableContent.Width * 1.0 / _tableContent.Height)
@@ -144,9 +175,65 @@ namespace SatelliteClientApp
                 
             }
             _tableContent = new Bitmap(tabContent);
-            BitmapImage src = Utilities.ToBitmapImage(_tableContent, ImageFormat.Jpeg);
+            Bitmap downscaledContent = Utilities.DownScaleBitmap(_tableContent, 4);
+            BitmapImage src = Utilities.ToBitmapImage(downscaledContent, ImageFormat.Jpeg);
             img_TableContent.Source = src;
+            if(img_TableContentFocus.Opacity == 0)
+            {
+                updateContentFocus(RelativeContentFocusCenter, false);
+            }
+            else
+            {
+                updateContentFocus(RelativeContentFocusCenter, true);
+            }
         }
+        public void updateContentFocus(PointF relPos, bool show)
+        {
+            
+            PointF displayCenter = new PointF();
+            displayCenter.X = (float)(relPos.X * img_TableContent.Width + tableAbsoluteCenter.X);
+            displayCenter.Y = (float)(relPos.Y * img_TableContent.Height + tableAbsoluteCenter.Y);
+            double displayLeft = displayCenter.X - img_TableContentFocus.Width / 2;
+            double displayTop = displayCenter.Y - img_TableContentFocus.Height / 2;
+
+            double relLeft = (displayLeft - defaultFocusWindowSize.Height) / img_TableContent.Width;
+            if(relLeft <0 || relLeft+ RelativeTableFocusSize.Width > 1)
+            {
+                return;
+            }
+            double relTop = (displayTop - defaultFocusWindowSize.Height) / img_TableContent.Height;
+            if(relTop <0 || relTop + RelativeTableFocusSize.Height>1)
+            {
+                return;
+            }
+            Bitmap tableFocus = Utilities.CropBitmap(_tableContent, (float)relLeft, (float)relTop, (float)RelativeTableFocusSize.Width, (float)RelativeTableFocusSize.Height);
+            tableFocus = Utilities.MaskBitmap(tableFocus, CircleMask);
+            try {
+                img_TableContentFocus.SetValue(Canvas.LeftProperty, displayLeft);
+                img_TableContentFocus.SetValue(Canvas.TopProperty, displayTop);
+                img_TableContentFocus.Source = Utilities.ToBitmapImage(tableFocus,ImageFormat.Png);
+                if (show)
+                {
+                    img_TableContentFocus.Opacity = 1;
+                }
+            }
+            catch
+            {
+
+            }
+
+
+        }
+        public PointF getRelativePosOnTable(PointF absPos)
+        {
+            PointF relPos = new PointF();
+            relPos.X = (float)((absPos.X - tableAbsoluteCenter.X) / img_TableContent.Width);
+            relPos.Y = (float)((absPos.Y - tableAbsoluteCenter.Y) / img_TableContent.Height);
+            return relPos;
+        }
+        #endregion
+
+        #region edge related
         public void updateTableEdges(Bitmap panoImg)
         {
             if(!WasInitialized)
@@ -171,6 +258,15 @@ namespace SatelliteClientApp
             img_EdgeLeft.Source = leftSrc;
             img_EdgeLeft.Tag = edgesBmps[3];
 
+        }
+        public void updateEdgeFocus(double angularDifToSatPos)
+        {
+            double angleOfSat = Utilities.AngleOfVector(new PointF(0, 0), SatRelativePosition, false);
+            double angleOfEdgeFocus = angleOfSat + angularDifToSatPos;
+            PointF relativePos = getRelativePositionFromAngle(angleOfEdgeFocus);
+            RelativeEdgeFocusCenter = relativePos;
+            updateEdgeFocus(relativePos);
+            fadeControlOut(img_EdgeFocus);
         }
         void updateEdgeFocus(PointF relativePos)
         {
@@ -305,16 +401,32 @@ namespace SatelliteClientApp
                     absFocusPos.Y = (float)(absY - defaultFocusWindowSize.Width / 2);
                 }
             }
-            img_EdgeFocus.Source = Utilities.ToBitmapImage(focusFrame, ImageFormat.Png);
-            img_EdgeFocus.Width = focusFrame.Width;
-            img_EdgeFocus.Height = focusFrame.Height;
-            img_EdgeFocus.SetValue(Canvas.LeftProperty, (double)absFocusPos.X);
-            img_EdgeFocus.SetValue(Canvas.TopProperty, (double)absFocusPos.Y);
-            img_EdgeFocus.BeginAnimation(UIElement.OpacityProperty, null);
-            img_EdgeFocus.Opacity = 1.0;
-            
+            if (focusFrame != null)
+            {
+                img_EdgeFocus.Source = Utilities.ToBitmapImage(focusFrame, ImageFormat.Png);
+                img_EdgeFocus.Width = focusFrame.Width;
+                img_EdgeFocus.Height = focusFrame.Height;
+                img_EdgeFocus.SetValue(Canvas.LeftProperty, (double)absFocusPos.X);
+                img_EdgeFocus.SetValue(Canvas.TopProperty, (double)absFocusPos.Y);
+                img_EdgeFocus.BeginAnimation(UIElement.OpacityProperty, null);
+                img_EdgeFocus.Opacity = 1.0;
+            }
+        }
+        void fadeControlOut(UIElement control)
+        {
+            var fadeOutAnim = new DoubleAnimation
+            {
+                From = 1,
+                To = 0,
+                BeginTime = TimeSpan.FromSeconds(1),
+                Duration = TimeSpan.FromSeconds(2),
+                FillBehavior = FillBehavior.Stop
+            };
+            fadeOutAnim.Completed += (s, a) => control.Opacity = 0;
+            control.BeginAnimation(UIElement.OpacityProperty, fadeOutAnim);
         }
         #endregion
+        
         #region satellite avatar
         public void updateAvatarBitmap(Bitmap newAvatar)
         {
@@ -385,6 +497,10 @@ namespace SatelliteClientApp
             defaultFocusWindowSize.Width = (this.Width + this.Height) * 2 / 8;
             defaultFocusWindowSize.Height = edgeThick;
 
+            img_TableContentFocus.Width = img_TableContent.Width * RelativeTableFocusSize.Width;
+            img_TableContentFocus.Height = img_TableContentFocus.Width;
+            RelativeTableFocusSize.Height = img_TableContentFocus.Height / img_TableContent.Height;
+
             mainContainer.Width = this.Width;
             mainContainer.Height = this.Height;
         }
@@ -447,6 +563,37 @@ namespace SatelliteClientApp
             }
             double panoPortion = angle / (Math.PI * 2);
             return panoPortion;
+        }
+        public PointF getRelativePositionFromAngle(double angle)
+        {
+            PointF relativePos = new PointF();
+            double angleIn360 = angle;
+            if(angleIn360 <0)
+            {
+                angleIn360 += Math.PI * 2;
+            }
+            TablePart edge = belongToTableEdge(angleIn360, cornersAngles);
+            if(edge == TablePart.TOP)
+            {
+                relativePos.Y = -0.5f;
+                relativePos.X = (float)(Math.Cos(angle) * 0.5);
+            }
+            else if(edge == TablePart.BOTTOM)
+            {
+                relativePos.Y = 0.5f;
+                relativePos.X = (float)(Math.Cos(angle) * 0.5);
+            }
+            else if(edge == TablePart.LEFT)
+            {
+                relativePos.X = -0.5f;
+                relativePos.Y = (float)(Math.Sin(angle) * 0.5);
+            }
+            else if(edge == TablePart.RIGHT)
+            {
+                relativePos.X = 0.5f;
+                relativePos.Y = (float)(Math.Sin(angle) * 0.5);
+            }
+            return relativePos;
         }
         public PointF getTableRelativePositionFromAbsoluteOne(PointF absPos)
         {
@@ -609,6 +756,7 @@ namespace SatelliteClientApp
         #endregion
         #region Mouse events handlers
         bool isMouseDownOnEdge = false;
+        bool isMouseDownOnTable = false;
         private void TableMouseUpDownEventHandler(object sender,MouseButtonEventArgs e)
         {
             if(e.LeftButton == MouseButtonState.Pressed)
@@ -632,6 +780,18 @@ namespace SatelliteClientApp
                         {
                             edgeFocusChangeEventHandler(relativeToTable, relativeAngularDif, 1.0/8);
                         }
+                    }
+                }
+                else
+                {
+                    isMouseDownOnTable = true;
+                    if(_viewMode == TableViewMode.NORMAL)
+                    {
+                        System.Windows.Point globalMousePos = e.GetPosition(this);
+                        PointF relPos = getRelativePosOnTable(new PointF((float)globalMousePos.X, (float)globalMousePos.Y));
+                        RelativeContentFocusCenter = relPos;
+                        updateContentFocus(relPos,true);
+                        isMouseDownOnTable = true;
                     }
                 }
             }
@@ -661,26 +821,30 @@ namespace SatelliteClientApp
                     }
                 }
             }
-            
+            else
+            {
+                if (_viewMode == TableViewMode.NORMAL && isMouseDownOnTable)
+                {
+                    System.Windows.Point globalMousePos = e.GetPosition(this);
+                    PointF relPos = getRelativePosOnTable(new PointF((float)globalMousePos.X, (float)globalMousePos.Y));
+                    RelativeContentFocusCenter = relPos;
+                    updateContentFocus(relPos,true);
+                }
+            }
         }
         private void TableMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             //start fade-out animation
             if(isMouseDownOnEdge)
-            { 
-                var fadeOutAnim = new DoubleAnimation
-                {
-                    From = 1,
-                    To = 0,
-                    BeginTime = TimeSpan.FromSeconds(1),
-                    Duration = TimeSpan.FromSeconds(2),
-                    FillBehavior = FillBehavior.Stop
-                };
-                fadeOutAnim.Completed += (s, a) => img_EdgeFocus.Opacity = 0;
-                img_EdgeFocus.BeginAnimation(UIElement.OpacityProperty, fadeOutAnim);
+            {
+                fadeControlOut(img_EdgeFocus);
 
             }
-            isMouseDownOnEdge = false;
+            else if(isMouseDownOnTable)
+            {
+                fadeControlOut(img_TableContentFocus);
+            }
+            resetMouseState();
         }
         
 

@@ -23,6 +23,7 @@ namespace SatelliteClientApp
     /// </summary>
     public partial class PanoViewer : UserControl
     {
+        public delegate void PanoFocusPositionChanged(double angularDifToSatPos, Rect panoFocusBoundary);
         Bitmap panoFrame;
         bool isInitialized = false;
         private Rect focusBoundary = new Rect();
@@ -33,6 +34,7 @@ namespace SatelliteClientApp
                 return focusBoundary;
             }
         }
+        public event PanoFocusPositionChanged panoFocusPosChangedHandler = null;
         public PanoViewer()
         {
             InitializeComponent();
@@ -79,13 +81,61 @@ namespace SatelliteClientApp
             }
             double centerX = relativeAngularInPercent * imgPano.Width;
             double w = relativeW * imgPano.Width;
-            double left = centerX - w / 2;
+            rectHighlightSegment.Width = w;
+            changeFocusWindowPosition(centerX);
+            fadeOutPanoFocus();
+        }
+        #region Mouse Events
+        bool isMouseDown = false;
+        private void imgPano_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if(e.LeftButton == MouseButtonState.Pressed)
+            {
+                isMouseDown = true;
+                System.Windows.Point mousePos = e.GetPosition(imgPano);
+                changeFocusWindowPosition(mousePos.X);
+                notifyPanoFocusChanged(mousePos.X);
+            }
+        }
+
+        private void imgPano_MouseMove(object sender, MouseEventArgs e)
+        {
+            if(isMouseDown)
+            {
+                System.Windows.Point mousePos = e.GetPosition(imgPano);
+                changeFocusWindowPosition(mousePos.X);
+                notifyPanoFocusChanged(mousePos.X);
+            }
+        }
+        private void imgPano_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            isMouseDown = false;
+            fadeOutPanoFocus();
+        }
+
+        private void imgPano_MouseLeave(object sender, MouseEventArgs e)
+        {
+            isMouseDown = false;
+            fadeOutPanoFocus();
+        }
+        #endregion
+
+        void changeFocusWindowPosition(double centerX, double centerY = 0)
+        {
+            double left = centerX - rectHighlightSegment.Width / 2;
             rectHighlightSegment.SetValue(Canvas.LeftProperty, left);
             rectHighlightSegment.SetValue(Canvas.TopProperty, (double)0);
-            rectHighlightSegment.Width = w;
             rectHighlightSegment.BeginAnimation(UIElement.OpacityProperty, null);
             rectHighlightSegment.Opacity = 1.0;
 
+            focusBoundary.X = left / imgPano.Width;
+            focusBoundary.Width = rectHighlightSegment.Width / imgPano.Width;
+            focusBoundary.Y = 0;
+            focusBoundary.Height = rectHighlightSegment.Height / imgPano.Width;
+            
+        }
+        void fadeOutPanoFocus()
+        {
             //start fade-out animation
             var fadeOutAnim = new DoubleAnimation
             {
@@ -97,11 +147,19 @@ namespace SatelliteClientApp
             };
             fadeOutAnim.Completed += (s, a) => rectHighlightSegment.Opacity = 0;
             rectHighlightSegment.BeginAnimation(UIElement.OpacityProperty, fadeOutAnim);
-
-            focusBoundary.X = left/imgPano.Width;
-            focusBoundary.Width = w/imgPano.Width;
-            focusBoundary.Y = 0;
-            focusBoundary.Height = rectHighlightSegment.Height/imgPano.Width;
+        }
+        void notifyPanoFocusChanged(double centerX, double centerY=0)
+        {
+            double percentInPano = centerX / imgPano.Width;
+            if (percentInPano > 0.5)
+            {
+                percentInPano -= 1;
+            }
+            double angularDifToSatPos = percentInPano * Math.PI * 2;
+            if(panoFocusPosChangedHandler != null)
+            {
+                panoFocusPosChangedHandler(angularDifToSatPos, focusBoundary);
+            }
         }
     }
 }

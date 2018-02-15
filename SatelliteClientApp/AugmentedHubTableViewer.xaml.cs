@@ -22,6 +22,7 @@ namespace SatelliteClientApp
     /// </summary>
     public partial class AugmentedHubTableViewer : UserControl
     {
+        const double tablePadding = 20;
         public event HubTableViewerControl.EdgeFocusChanged edgeFocusChangedEventHandler = null;
         Rect _panoFocusBoundary;
         public Rect PanoFocusBoundary
@@ -84,7 +85,7 @@ namespace SatelliteClientApp
         public void updateTableContent(Bitmap tableContent,double maxW,double maxH)
         {
             
-            hubTableViewer.updateTableContent(tableContent, maxW, maxH);
+            hubTableViewer.updateTableContent(tableContent, maxW, maxH- 2*tablePadding);
         }
         public void updateTableEdgesImages(Bitmap panoImage)
         {
@@ -146,11 +147,11 @@ namespace SatelliteClientApp
                 img_EdgeFocusLink.Source = Utilities.ToBitmapImage(bmp, System.Drawing.Imaging.ImageFormat.Png);
             }catch
             { }
-            img_EdgeFocusLink.BeginAnimation(UIElement.OpacityProperty, null);
-            img_EdgeFocusLink.Opacity = 1;
-            img_EdgeFocusLink.SetValue(Canvas.LeftProperty, leftMost);
-            img_EdgeFocusLink.SetValue(Canvas.TopProperty, topMost);
-
+            positionBubbleLink(img_EdgeFocusLink, leftMost, topMost);
+            fadeControlOut(img_EdgeFocusLink);
+        }
+        void fadeControlOut(UIElement control)
+        {
             var fadeOutAnim = new DoubleAnimation
             {
                 From = 1,
@@ -159,8 +160,20 @@ namespace SatelliteClientApp
                 Duration = TimeSpan.FromSeconds(2),
                 FillBehavior = FillBehavior.Stop
             };
-            fadeOutAnim.Completed += (s, a) => img_EdgeFocusLink.Opacity = 0;
-            img_EdgeFocusLink.BeginAnimation(UIElement.OpacityProperty, fadeOutAnim);
+            fadeOutAnim.Completed += (s, a) => control.Opacity = 0;
+            control.BeginAnimation(UIElement.OpacityProperty, fadeOutAnim);
+        }
+        void positionBubbleLink(UIElement bubbleLink,double left, double top)
+        {
+            bubbleLink.SetValue(Canvas.LeftProperty, left);
+            bubbleLink.SetValue(Canvas.TopProperty, top);
+            bubbleLink.BeginAnimation(UIElement.OpacityProperty, null);
+            bubbleLink.Opacity = 1;
+        }
+        public void panoFocusPosChangedHandler(double angularDifToSatPos, Rect panoFocusBoundary)
+        {
+            hubTableViewer.updateEdgeFocus(angularDifToSatPos);
+            displayPanoBubbleLink(panoFocusBoundary);
         }
         #endregion
     }

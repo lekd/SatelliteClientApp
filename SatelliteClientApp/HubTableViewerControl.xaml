@@ -50,7 +50,9 @@
         <Image x:Name="img_EdgeFocus" Stretch="Fill"
                IsHitTestVisible="False"
                Opacity="0"></Image>
-        
+        <Image x:Name="img_TableContentFocus" Stretch="Fill"
+               IsHitTestVisible="False"
+               Opacity="0"></Image>
         <Image x:Name="img_satAvatar" Stretch="Fill"
                Source="Resources/unknown_user.png"
                Visibility="Hidden"

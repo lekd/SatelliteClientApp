@@ -37,6 +37,7 @@ namespace SatelliteClientApp
 
             hubTableViewer.edgeFocusChangedEventHandler += HubTableViewer_edgeFocusChangedEventHandler;
             hubTableViewer.PanoFocusBoundary = panoViewer.FocusBoundary;
+            panoViewer.panoFocusPosChangedHandler += hubTableViewer.panoFocusPosChangedHandler;
         }
 
         private void mainWindow_Loaded(object sender, RoutedEventArgs e)

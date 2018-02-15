@@ -11,10 +11,16 @@
             Height="{Binding ActualHeight, ElementName=mainView}">
         <Image x:Name="imgPano" Stretch="Fill"
                Width="{Binding ActualWidth, ElementName=mainContainer}"
-              Height="{Binding ActualHeight, ElementName=mainContainer}"></Image>
+               Height="{Binding ActualHeight, ElementName=mainContainer}"
+               MouseLeftButtonDown="imgPano_MouseLeftButtonDown"
+               MouseMove="imgPano_MouseMove"
+               MouseLeftButtonUp="imgPano_MouseLeftButtonUp"
+               MouseLeave="imgPano_MouseLeave"
+               ></Image>
         <Rectangle x:Name="rectHighlightSegment"
                    Opacity="0"
                    Width="30" Height="{Binding ActualHeight, ElementName=mainContainer}"
+                   IsHitTestVisible="False"
                    Stroke="Cyan" StrokeThickness="2"></Rectangle>
     </Canvas>
 </UserControl>

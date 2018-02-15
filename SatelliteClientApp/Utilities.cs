@@ -16,6 +16,10 @@ namespace SatelliteClientApp
     {
         public static BitmapImage ToBitmapImage(Bitmap bitmap, ImageFormat imgFormat)
         {
+            if(bitmap == null)
+            {
+                return null;
+            }
             using (var memory = new MemoryStream())
             {
                 bitmap.Save(memory, imgFormat);
@@ -47,6 +51,10 @@ namespace SatelliteClientApp
             Bitmap resized = new Bitmap(origin, new Size((int)(origin.Width * 1.0f / downScaleFactor),
                                                            (int)(origin.Height * 1.0f / downScaleFactor)));
             return resized;
+        }
+        public static Bitmap ResizeBitmap(Bitmap origin, Size targetSize)
+        {
+            return new Bitmap(origin, targetSize);
         }
         public static Bitmap CropBitmap(Bitmap origin, float percentL, float percentT, float percentW, float percentH)
         {
@@ -93,6 +101,19 @@ namespace SatelliteClientApp
                 g.DrawImage(origin, new Rectangle(cropLeftHalf.Width, 0, cropRightHalf.Width, cropRightHalf.Height), cropRightHalf, GraphicsUnit.Pixel);
             }
             return crop;
+        }
+        public static Bitmap MaskBitmap(Bitmap origin,Bitmap mask)
+        {
+            Bitmap subMask = new Bitmap(mask);
+            if(subMask.Width != origin.Width || subMask.Height != origin.Height)
+            {
+                subMask = ResizeBitmap(subMask, new Size(origin.Width, origin.Height));
+            }
+            Emgu.CV.Image<Emgu.CV.Structure.Bgra, byte> srcImg = new Emgu.CV.Image<Emgu.CV.Structure.Bgra, byte>(origin);
+            Emgu.CV.Image<Emgu.CV.Structure.Gray, byte> maskImg = new Emgu.CV.Image<Emgu.CV.Structure.Bgra, byte>(subMask).Convert<Gray, byte>();
+            Emgu.CV.Image<Emgu.CV.Structure.Bgra, byte> dstImg = new Emgu.CV.Image<Bgra, byte>(new Size(origin.Width, origin.Height));
+            srcImg.Copy(dstImg, maskImg);
+            return dstImg.Bitmap;
         }
         static public Bitmap rotateBitmapQuadraticAngle(Bitmap origin, double angle)
         {
