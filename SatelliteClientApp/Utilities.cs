@@ -8,6 +8,7 @@ using System.IO;
 using System.Drawing.Imaging;
 using System.Windows.Media.Imaging;
 using Emgu.CV.Structure;
+using System.Windows.Media.Animation;
 
 namespace SatelliteClientApp
 {
@@ -328,6 +329,25 @@ namespace SatelliteClientApp
                 g.FillPolygon(semiCyanBrush, vertices);
             }
             return bmp;
+        }
+        public static void FadeControlOut(System.Windows.UIElement control,double delay,double duration, bool disable)
+        {
+            var fadeOutAnim = new DoubleAnimation
+            {
+                From = 1,
+                To = 0,
+                BeginTime = TimeSpan.FromSeconds(delay),
+                Duration = TimeSpan.FromSeconds(duration),
+                FillBehavior = FillBehavior.Stop
+            };
+            fadeOutAnim.Completed += (s, a) => {
+                control.Opacity = 0;
+                if(disable)
+                {
+                    control.Visibility = System.Windows.Visibility.Hidden;
+                }
+            };
+            control.BeginAnimation(System.Windows.UIElement.OpacityProperty, fadeOutAnim);
         }
     }
 }

@@ -47,6 +47,7 @@ namespace SatelliteClientApp
             double h = grid_ViewsContainer.RowDefinitions[1].ActualHeight;
             hubTableViewer.setWidth(w);
             hubTableViewer.setHeight(h);
+            hubTableViewer.updateUIWithNewSize();
             //panoStreamClient.Start();
             //tableContentStreamClient.Start();
         }

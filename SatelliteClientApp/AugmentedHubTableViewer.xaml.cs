@@ -43,6 +43,29 @@ namespace SatelliteClientApp
             InitializeComponent();
             hubTableViewer.boundaryChangeEventHandler += HubTableViewer_boundaryChangeEventHandler;
             hubTableViewer.edgeFocusChangeEventHandler += HubTableViewer_edgeFocusChangeEventHandler;
+            hubTableViewer.tableFocusChangedEventHandler += HubTableViewer_tableFocusChangedEventHandler;
+        }
+        private void mainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            
+        }
+        public void updateUIWithNewSize()
+        {
+            tableFocusTooltip.SetSize(this.Height * 0.4);
+        }
+        private void HubTableViewer_tableFocusChangedEventHandler(Bitmap tableFocus, double relPosX, double relPosY)
+        {
+            double windowCenterX = this.Width / 2 ;
+            double windowCenterY = this.Height / 2;
+            tableFocusTooltip.updateToolTipContent(tableFocus);
+            double absCenterX = relPosX * (this.Width - tableFocusTooltip.Width) + windowCenterX;
+            double absCenterY = relPosY * (this.Height - tableFocusTooltip.Height) + windowCenterY;
+            double tooltipLeft = absCenterX - tableFocusTooltip.Width / 2;
+            double tooltipTop = absCenterY - tableFocusTooltip.Width / 2;
+            tableFocusTooltip.SetValue(Canvas.LeftProperty, tooltipLeft);
+            tableFocusTooltip.SetValue(Canvas.TopProperty, tooltipTop);
+            tableFocusTooltip.Visibility = Visibility.Visible;
+            tableFocusTooltip.Opacity = 1;
         }
 
         private void HubTableViewer_edgeFocusChangeEventHandler(PointF relPos, double relAngularToSallite, double relativeW)
@@ -116,7 +139,8 @@ namespace SatelliteClientApp
 
         private void blankCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-
+            hubTableViewer.hideTableContentFocus();
+            Utilities.FadeControlOut(tableFocusTooltip, 0, 1, true);
         }
         #endregion
 
@@ -148,21 +172,9 @@ namespace SatelliteClientApp
             }catch
             { }
             positionBubbleLink(img_EdgeFocusLink, leftMost, topMost);
-            fadeControlOut(img_EdgeFocusLink);
+            Utilities.FadeControlOut(img_EdgeFocusLink, 1, 2, false);
         }
-        void fadeControlOut(UIElement control)
-        {
-            var fadeOutAnim = new DoubleAnimation
-            {
-                From = 1,
-                To = 0,
-                BeginTime = TimeSpan.FromSeconds(1),
-                Duration = TimeSpan.FromSeconds(2),
-                FillBehavior = FillBehavior.Stop
-            };
-            fadeOutAnim.Completed += (s, a) => control.Opacity = 0;
-            control.BeginAnimation(UIElement.OpacityProperty, fadeOutAnim);
-        }
+        
         void positionBubbleLink(UIElement bubbleLink,double left, double top)
         {
             bubbleLink.SetValue(Canvas.LeftProperty, left);
@@ -176,5 +188,7 @@ namespace SatelliteClientApp
             displayPanoBubbleLink(panoFocusBoundary);
         }
         #endregion
+
+        
     }
 }

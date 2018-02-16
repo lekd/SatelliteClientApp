@@ -101,6 +101,9 @@
       <DependentUpon>PanoViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="StreamingClient.cs" />
+    <Compile Include="UC_TableFocusToolTip.xaml.cs">
+      <DependentUpon>UC_TableFocusToolTip.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utilities.cs" />
     <Page Include="AugmentedHubTableViewer.xaml">
       <SubType>Designer</SubType>
@@ -123,6 +126,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="PanoViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UC_TableFocusToolTip.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -160,6 +167,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\unknown_user.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\rotation_handle.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:SatelliteClientApp"
              mc:Ignorable="d" 
              x:Name="mainWindow"
+             Loaded="mainWindow_Loaded"
              d:DesignHeight="500" d:DesignWidth="1000">
     <Grid
         Width="{Binding With,ElementName=mainWindow}"
@@ -31,6 +32,9 @@
             <Image x:Name="img_TableFocusLink"
                IsHitTestVisible="False"
                Opacity="0"></Image>
+            <local:UC_TableFocusToolTip x:Name="tableFocusTooltip"
+                                        Width="200" Height="200"
+                                        Visibility="Hidden"></local:UC_TableFocusToolTip>
         </Canvas>
     </Grid>
     

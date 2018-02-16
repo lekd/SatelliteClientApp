@@ -83,7 +83,7 @@ namespace SatelliteClientApp
             double w = relativeW * imgPano.Width;
             rectHighlightSegment.Width = w;
             changeFocusWindowPosition(centerX);
-            fadeOutPanoFocus();
+            Utilities.FadeControlOut(rectHighlightSegment, 1, 2, false);
         }
         #region Mouse Events
         bool isMouseDown = false;
@@ -110,13 +110,13 @@ namespace SatelliteClientApp
         private void imgPano_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             isMouseDown = false;
-            fadeOutPanoFocus();
+            Utilities.FadeControlOut(rectHighlightSegment, 1, 2, false);
         }
 
         private void imgPano_MouseLeave(object sender, MouseEventArgs e)
         {
             isMouseDown = false;
-            fadeOutPanoFocus();
+            Utilities.FadeControlOut(rectHighlightSegment, 1, 2, false);
         }
         #endregion
 
@@ -134,20 +134,7 @@ namespace SatelliteClientApp
             focusBoundary.Height = rectHighlightSegment.Height / imgPano.Width;
             
         }
-        void fadeOutPanoFocus()
-        {
-            //start fade-out animation
-            var fadeOutAnim = new DoubleAnimation
-            {
-                From = 1,
-                To = 0,
-                BeginTime = TimeSpan.FromSeconds(1),
-                Duration = TimeSpan.FromSeconds(2),
-                FillBehavior = FillBehavior.Stop
-            };
-            fadeOutAnim.Completed += (s, a) => rectHighlightSegment.Opacity = 0;
-            rectHighlightSegment.BeginAnimation(UIElement.OpacityProperty, fadeOutAnim);
-        }
+        
         void notifyPanoFocusChanged(double centerX, double centerY=0)
         {
             double percentInPano = centerX / imgPano.Width;

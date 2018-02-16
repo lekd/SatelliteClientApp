@@ -8,6 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("resources/unknown_user.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("resources/rotation_handle.png")]
 
 
