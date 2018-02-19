@@ -27,6 +27,7 @@ namespace SatelliteClientApp
         public delegate void BoundaryChanged(double w, double h);
         public delegate void EdgeFocusChanged(PointF relPos, double relAngularToSallite, double relativeW);
         public delegate void TableFocusChanged(Bitmap tableFocus, double relPosX, double relPosY);
+        public delegate void TooltipControlRealeased();
         public enum TableViewMode { NORMAL, SATELLITE_ANCHOR}
         public enum TablePart { LEFT, RIGHT, TOP, BOTTOM, CENTER }
         const float MAX_RELATIVE_X = 0.5f;
@@ -52,6 +53,7 @@ namespace SatelliteClientApp
         public event BoundaryChanged boundaryChangeEventHandler = null;
         public event EdgeFocusChanged edgeFocusChangeEventHandler = null;
         public event TableFocusChanged tableFocusChangedEventHandler = null;
+        public event TooltipControlRealeased tooltipControlReleasedEventHandler = null;
 
         private Bitmap _circleMask;
         private Bitmap _highlightCircle;
@@ -220,21 +222,14 @@ namespace SatelliteClientApp
         {
             
             PointF displayCenter = new PointF();
-            displayCenter.X = (float)(relPos.X * img_TableContent.Width + tableAbsoluteCenter.X);
-            displayCenter.Y = (float)(relPos.Y * img_TableContent.Height + tableAbsoluteCenter.Y);
+            displayCenter.X = (float)(relPos.X * (img_TableContent.Width - img_TableContentFocus.Width) + tableAbsoluteCenter.X);
+            displayCenter.Y = (float)(relPos.Y * (img_TableContent.Height - img_TableContentFocus.Height) + tableAbsoluteCenter.Y);
             double displayLeft = displayCenter.X - img_TableContentFocus.Width / 2;
             double displayTop = displayCenter.Y - img_TableContentFocus.Height / 2;
 
             double relLeft = (displayLeft - defaultFocusWindowSize.Height) / img_TableContent.Width;
-            if(relLeft <0 || relLeft+ RelativeTableFocusSize.Width > 1)
-            {
-                return;
-            }
             double relTop = (displayTop - defaultFocusWindowSize.Height) / img_TableContent.Height;
-            if(relTop <0 || relTop + RelativeTableFocusSize.Height>1)
-            {
-                return;
-            }
+
             Bitmap tableFocus = Utilities.CropBitmap(_tableContent, (float)relLeft, (float)relTop, (float)RelativeTableFocusSize.Width, (float)RelativeTableFocusSize.Height);
             tableFocus = Utilities.MaskBitmap(tableFocus, CircleMask);
             img_TableContentFocus.SetValue(Canvas.LeftProperty, displayLeft);
@@ -261,8 +256,10 @@ namespace SatelliteClientApp
         public PointF getRelativePosOnTable(PointF absPos)
         {
             PointF relPos = new PointF();
-            relPos.X = (float)((absPos.X - tableAbsoluteCenter.X) / img_TableContent.Width);
-            relPos.Y = (float)((absPos.Y - tableAbsoluteCenter.Y) / img_TableContent.Height);
+            double paddingX = img_TableContentFocus.Width;
+            double paddingY = img_TableContentFocus.Height;
+            relPos.X = (float)((absPos.X - tableAbsoluteCenter.X) / (img_TableContent.Width - paddingX));
+            relPos.Y = (float)((absPos.Y - tableAbsoluteCenter.Y) / (img_TableContent.Height - paddingY));
             return relPos;
         }
         public void hideTableContentFocus()
@@ -808,7 +805,7 @@ namespace SatelliteClientApp
         #region Mouse events handlers
         bool isMouseDownOnEdge = false;
         bool isMouseDownOnTable = false;
-        private void TableMouseUpDownEventHandler(object sender,MouseButtonEventArgs e)
+        private void TableMouseDownEventHandler(object sender,MouseButtonEventArgs e)
         {
             if(e.LeftButton == MouseButtonState.Pressed)
             {
@@ -894,7 +891,13 @@ namespace SatelliteClientApp
                 Utilities.FadeControlOut(img_EdgeFocus, 1, 2, false);
 
             }
-           
+            if( isMouseDownOnTable)
+            {
+                if(tooltipControlReleasedEventHandler != null)
+                {
+                    tooltipControlReleasedEventHandler();
+                }
+            }
             resetMouseState();
         }
         

@@ -8,17 +8,25 @@
              x:Name="mainWindow"
              d:DesignHeight="300" d:DesignWidth="300">
     <Canvas x:Name="mainContainer"
-        Width="{Binding ActualWidth, ElementName=mainContainer}"
-        Height="{Binding ActualHeight, ElementName=mainContainer}">
-        <Path Fill="#6600A5FF" Stroke="Transparent" x:Name="handleContainer" IsHitTestVisible="False">
+            Width="{Binding ActualWidth, ElementName=mainContainer}"
+            Height="{Binding ActualHeight, ElementName=mainContainer}">
+        <Path Fill="#6600A5FF" Stroke="Transparent" x:Name="handleContainer" 
+              MouseLeftButtonDown="handleContainer_MouseLeftButtonDown">
             <Path.Data>
-                <EllipseGeometry RadiusX="150" RadiusY="150" Center="150, 150" x:Name="handleContainer_OuterRing">
-                </EllipseGeometry>
+                <CombinedGeometry GeometryCombineMode="Xor">
+                    <CombinedGeometry.Geometry1>
+                        <EllipseGeometry RadiusX="150" RadiusY="150" Center="150, 150" x:Name="handleContainer_OuterRing">
+                        </EllipseGeometry>
+                    </CombinedGeometry.Geometry1>
+                    <CombinedGeometry.Geometry2>
+                        <EllipseGeometry RadiusX="100" RadiusY="100" Center="150, 150" x:Name="handleContainer_InnerRing">
+                        </EllipseGeometry>
+                    </CombinedGeometry.Geometry2>
+                 </CombinedGeometry>
             </Path.Data>
         </Path>
         <Path Fill="#FF00FFFF" Stroke="Transparent" x:Name="handleShape"
-              MouseEnter="handle_MouseEnter"
-              MouseLeave="handle_MouseLeave">
+              IsHitTestVisible="False">
             <Path.Data>
                 <CombinedGeometry GeometryCombineMode="Exclude">
                     <CombinedGeometry.Geometry1>
@@ -34,15 +42,13 @@
                     </CombinedGeometry.Geometry1>
                     <CombinedGeometry.Geometry2>
                         <PathGeometry>
-                            <PathFigure IsClosed="True" StartPoint="100,0" x:Name="handleShape_clipPoly">
+                            <PathFigure IsClosed="True" StartPoint="0,0" x:Name="handleShape_clipPoly">
                                 <PathFigure.Segments>
                                     <PathSegmentCollection>
                                         <LineSegment x:Name="handleShape_clipLine1" Point="150, 150"></LineSegment>
-                                        <LineSegment x:Name="handleShape_clipLine2" Point="200, 0"></LineSegment>
-                                        <LineSegment x:Name="handleShape_clipLine3" Point="300, 0"></LineSegment>
-                                        <LineSegment x:Name="handleShape_clipLine4" Point="300, 300"></LineSegment>
-                                        <LineSegment x:Name="handleShape_clipLine5" Point="0, 300"></LineSegment>
-                                        <LineSegment x:Name="handleShape_clipLine6" Point="0, 0"></LineSegment>
+                                        <LineSegment x:Name="handleShape_clipLine2" Point="300, 0"></LineSegment>
+                                        <LineSegment x:Name="handleShape_clipLine3" Point="300, 300"></LineSegment>
+                                        <LineSegment x:Name="handleShape_clipLine4" Point="0, 300"></LineSegment>
                                     </PathSegmentCollection>
                                 </PathFigure.Segments>
                             </PathFigure>

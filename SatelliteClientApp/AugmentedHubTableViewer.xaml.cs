@@ -44,7 +44,11 @@ namespace SatelliteClientApp
             hubTableViewer.boundaryChangeEventHandler += HubTableViewer_boundaryChangeEventHandler;
             hubTableViewer.edgeFocusChangeEventHandler += HubTableViewer_edgeFocusChangeEventHandler;
             hubTableViewer.tableFocusChangedEventHandler += HubTableViewer_tableFocusChangedEventHandler;
+            hubTableViewer.tooltipControlReleasedEventHandler += HubTableViewer_tooltipControlReleasedEventHandler;
         }
+
+        
+
         private void mainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             
@@ -53,6 +57,7 @@ namespace SatelliteClientApp
         {
             tableFocusTooltip.SetSize(this.Height * 0.4);
         }
+        #region children control events handlers
         private void HubTableViewer_tableFocusChangedEventHandler(Bitmap tableFocus, double relPosX, double relPosY)
         {
             double windowCenterX = this.Width / 2 ;
@@ -66,6 +71,7 @@ namespace SatelliteClientApp
             tableFocusTooltip.SetValue(Canvas.TopProperty, tooltipTop);
             tableFocusTooltip.Visibility = Visibility.Visible;
             tableFocusTooltip.Opacity = 1;
+            tableFocusTooltip.updateRelativePos(new PointF((float)relPosX, (float)relPosY));
         }
 
         private void HubTableViewer_edgeFocusChangeEventHandler(PointF relPos, double relAngularToSallite, double relativeW)
@@ -85,7 +91,11 @@ namespace SatelliteClientApp
             hubTableViewer.SetValue(Canvas.LeftProperty, left);
             hubTableViewer.SetValue(Canvas.TopProperty, top);
         }
-
+        private void HubTableViewer_tooltipControlReleasedEventHandler()
+        {
+            tableFocusTooltip.enableTouch(true);
+        }
+        #endregion
         public void setWidth(double w)
         {
             this.Width = w;

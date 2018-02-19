@@ -27,23 +27,23 @@
             </Grid.ColumnDefinitions>
             <Image x:Name="img_TableContent" Grid.Row="1" Grid.Column="1" 
                    Stretch="Fill"
-                   MouseLeftButtonDown="TableMouseUpDownEventHandler"
+                   MouseLeftButtonDown="TableMouseDownEventHandler"
                    MouseMove="TableMouseMoveEventHandler"
                    MouseLeftButtonUp="TableMouseLeftButtonUp"></Image>
             <Image x:Name="img_EdgeTop" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Stretch="Fill" 
-                   MouseLeftButtonDown="TableMouseUpDownEventHandler"
+                   MouseLeftButtonDown="TableMouseDownEventHandler"
                    MouseMove="TableMouseMoveEventHandler"
                    MouseLeftButtonUp="TableMouseLeftButtonUp"></Image>
             <Image x:Name="img_EdgeLeft" Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" Stretch="Fill"
-                   MouseLeftButtonDown="TableMouseUpDownEventHandler"
+                   MouseLeftButtonDown="TableMouseDownEventHandler"
                    MouseMove="TableMouseMoveEventHandler"
                    MouseLeftButtonUp="TableMouseLeftButtonUp"></Image>
             <Image x:Name="img_EdgeRight" Grid.Row="0" Grid.Column="2" Grid.RowSpan="3" Stretch="Fill"
-                   MouseLeftButtonDown="TableMouseUpDownEventHandler"
+                   MouseLeftButtonDown="TableMouseDownEventHandler"
                    MouseMove="TableMouseMoveEventHandler"
                    MouseLeftButtonUp="TableMouseLeftButtonUp"></Image>
             <Image x:Name="img_EdgeBottom" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Stretch="Fill"
-                   MouseLeftButtonDown="TableMouseUpDownEventHandler"
+                   MouseLeftButtonDown="TableMouseDownEventHandler"
                    MouseMove="TableMouseMoveEventHandler"
                    MouseLeftButtonUp="TableMouseLeftButtonUp"></Image>
         </Grid>

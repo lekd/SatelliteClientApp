@@ -22,9 +22,21 @@ namespace SatelliteClientApp
     public partial class UC_TableFocusToolTip : UserControl
     {
         const double RelativeInnerRingSizeToOuterRing = 0.84;
+        double tooltipRotationAngle = 0;
+        PointF _relativePosInContainer = new PointF();
+        PointF absoluteCenter = new PointF();
         public UC_TableFocusToolTip()
         {
             InitializeComponent();
+        }
+        public void updateRelativePos(PointF pos)
+        {
+            if(_relativePosInContainer.X != pos.X || _relativePosInContainer.Y != pos.Y)
+            {
+                _relativePosInContainer.X = pos.X;
+                _relativePosInContainer.Y = pos.Y;
+                enableTouch(false);
+            }
         }
         public void SetSize(double Diameter)
         {
@@ -36,6 +48,9 @@ namespace SatelliteClientApp
             handleContainer_OuterRing.RadiusX = Diameter / 2;
             handleContainer_OuterRing.RadiusY = Diameter / 2;
             handleContainer_OuterRing.Center = new System.Windows.Point(this.Width / 2, this.Height / 2);
+            handleContainer_InnerRing.RadiusX = handle_InnerRingDiameter / 2;
+            handleContainer_InnerRing.RadiusY = handle_InnerRingDiameter / 2;
+            handleContainer_InnerRing.Center = new System.Windows.Point(this.Width / 2, this.Height / 2);
             //update ring - border of tooltip
             ring.Width = handle_InnerRingDiameter;
             ring.Height = handle_InnerRingDiameter;
@@ -49,13 +64,11 @@ namespace SatelliteClientApp
             handleShape_OuterRing.Center = new System.Windows.Point(this.Width / 2, this.Height / 2);
             handleShape_InnerRing.RadiusX = handleShape_InnerRing.RadiusY = (handle_InnerRingDiameter / 2) - 5;
             handleShape_InnerRing.Center = new System.Windows.Point(this.Width / 2, this.Height / 2);
-            handleShape_clipPoly.StartPoint = new System.Windows.Point(this.Width / 3, 0);
+            handleShape_clipPoly.StartPoint = new System.Windows.Point(0, 0);
             handleShape_clipLine1.Point = new System.Windows.Point(this.Width / 2, this.Height / 2);
-            handleShape_clipLine2.Point = new System.Windows.Point(this.Width*2 / 3, 0);
-            handleShape_clipLine3.Point = new System.Windows.Point(this.Width, 0);
-            handleShape_clipLine4.Point = new System.Windows.Point(this.Width , this.Height);
-            handleShape_clipLine5.Point = new System.Windows.Point(0, this.Height);
-            handleShape_clipLine6.Point = new System.Windows.Point(0, 0);
+            handleShape_clipLine2.Point = new System.Windows.Point(this.Width, 0);
+            handleShape_clipLine3.Point = new System.Windows.Point(this.Width , this.Height);
+            handleShape_clipLine4.Point = new System.Windows.Point(0, this.Height);
             handleShape.SetValue(Canvas.LeftProperty, (double)0);
             handleShape.SetValue(Canvas.TopProperty, (double)0);
             //update tooltip
@@ -67,47 +80,53 @@ namespace SatelliteClientApp
             toolTipContent.SetValue(Canvas.LeftProperty, toolTipLeft);
             toolTipContent.SetValue(Canvas.TopProperty, toolTipTop);
 
-            
+            absoluteCenter.X = (float)this.Width / 2;
+            absoluteCenter.Y = (float)this.Height / 2;
+            mainContainer.RenderTransform = new RotateTransform(0, absoluteCenter.X, absoluteCenter.Y);
+
         }
         public void updateToolTipContent(Bitmap content)
         {
             toolTipContent.Source = Utilities.ToBitmapImage(content, System.Drawing.Imaging.ImageFormat.Png);
         }
-        private void handle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        public void enableTouch(bool isTouchEnabled)
         {
-            
-            
-        }
-
-        private void handle_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            
-        }
-
-        private void handle_MouseMove(object sender, MouseEventArgs e)
-        {
-            
-        }
-
-        private void handle_MouseEnter(object sender, MouseEventArgs e)
-        {
-            
-        }
-
-        private void handle_MouseLeave(object sender, MouseEventArgs e)
-        {
-            
-        }
-        public void AllowClickThrough(bool allow)
-        {
-            if(allow)
-            {
-                handleContainer.IsHitTestVisible = false;
-            }
-            else
+            if(isTouchEnabled)
             {
                 handleContainer.IsHitTestVisible = true;
             }
+            else
+            {
+                handleContainer.IsHitTestVisible = false;
+            }
         }
+        #region mouse events
+        private void handleContainer_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if(e.LeftButton == MouseButtonState.Pressed)
+            {
+                
+                System.Windows.Point curMousePos = e.GetPosition(this);
+                rotateToPoint(curMousePos);
+            }
+        }
+        #endregion
+        #region rotate tooltip
+        void rotateToPoint(System.Windows.Point newTouchPoint)
+        {
+            Vector baseVector = new Vector( absoluteCenter.X - absoluteCenter.X, 0 - absoluteCenter.Y);
+            Vector targetVector = new Vector(newTouchPoint.X - absoluteCenter.X, newTouchPoint.Y - absoluteCenter.Y);
+            tooltipRotationAngle = Vector.AngleBetween(baseVector, targetVector);
+            if (tooltipRotationAngle >= 360)
+            {
+                tooltipRotationAngle -= 360;
+            }
+            if (tooltipRotationAngle < 0)
+            {
+                tooltipRotationAngle += 360;
+            }
+            (mainContainer.RenderTransform as RotateTransform).Angle = tooltipRotationAngle;
+        }
+        #endregion
     }
 }

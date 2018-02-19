@@ -178,6 +178,10 @@ namespace SatelliteClientApp
         {
             return hypotenuse / Math.Sqrt(2);
         }
+        static public double DistanceBetweenTwoPoints(double x1,double y1,double x2,double y2)
+        {
+            return Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+        }
         static public Bitmap DrawBendableRectangle(double defWidth,double defHeight,double actualWidth,BendingDirection bendDirection)
         {
             double actualHeight = (defWidth - actualWidth) ;
