@@ -8,6 +8,9 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("resources/rotation_handle.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("resources/anchorbutton_pressed.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("resources/anchorbutton_unpressed.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("resources/savebutton_pressed.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("resources/savebutton_unpressed.png")]
 
 

@@ -25,7 +25,7 @@ namespace SatelliteClientApp.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("192.168.0.100")]
+        [global::System.Configuration.DefaultSettingValueAttribute("192.168.0.103")]
         public string PanoServer {
             get {
                 return ((string)(this["PanoServer"]));

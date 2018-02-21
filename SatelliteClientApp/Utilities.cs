@@ -116,7 +116,7 @@ namespace SatelliteClientApp
             srcImg.Copy(dstImg, maskImg);
             return dstImg.Bitmap;
         }
-        static public Bitmap rotateBitmapQuadraticAngle(Bitmap origin, double angle)
+        static public Bitmap RotateBitmapQuadraticAngle(Bitmap origin, double angle)
         {
             if (angle == 180 || angle == -180)
             {
@@ -132,7 +132,7 @@ namespace SatelliteClientApp
             }
             return origin;
         }
-        static public Bitmap skewBitmap(Bitmap origin, double dstBigEdge,double dstSmallEdge,double dstHeight)
+        static public Bitmap SkewBitmap(Bitmap origin, double dstBigEdge,double dstSmallEdge,double dstHeight)
         {
             PointF[] srcCorners = new PointF[4];
             srcCorners[0] = new PointF(0, 0);
@@ -181,6 +181,19 @@ namespace SatelliteClientApp
         static public double DistanceBetweenTwoPoints(double x1,double y1,double x2,double y2)
         {
             return Math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+        }
+        static public PointF RotatePointAroundPoint(PointF origin,PointF target,double angle)
+        {
+            PointF rotatedPoint = new PointF();
+            double s = Math.Sin(angle);
+            double c = Math.Cos(angle);
+            target.X -= origin.X;
+            target.Y -= origin.Y;
+            rotatedPoint.X = (float)(target.X * c - target.Y * s);
+            rotatedPoint.Y = (float)(target.X * s + target.Y * c);
+            rotatedPoint.X += origin.X;
+            rotatedPoint.Y += origin.Y;
+            return rotatedPoint;
         }
         static public Bitmap DrawBendableRectangle(double defWidth,double defHeight,double actualWidth,BendingDirection bendDirection)
         {
@@ -321,8 +334,8 @@ namespace SatelliteClientApp
             double top = getTopMostOfPolygon(vertices);
             double right = getRightMostOfPolygon(vertices);
             double bottom = getBottomMostOfPolygon(vertices);
-            double w = right - left;
-            double h = bottom - top;
+            double w = right - left > 0 ? right - left : 1;
+            double h = bottom - top > 0 ? bottom - top : 1;
             Bitmap bmp = new Bitmap((int)Math.Ceiling(w), (int)Math.Ceiling(h));
             SolidBrush transparentBrush = new SolidBrush(Color.Transparent);
             SolidBrush semiCyanBrush = new SolidBrush(Color.FromArgb(100, Color.Cyan));

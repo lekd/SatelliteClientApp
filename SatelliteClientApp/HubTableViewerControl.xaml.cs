@@ -26,8 +26,10 @@ namespace SatelliteClientApp
     {
         public delegate void BoundaryChanged(double w, double h);
         public delegate void EdgeFocusChanged(PointF relPos, double relAngularToSallite, double relativeW);
-        public delegate void TableFocusChanged(Bitmap tableFocus, double relPosX, double relPosY);
+        public delegate void TableFocusChanged(Bitmap tableFocus, double relPosX, double relPosY, double tableRotation);
         public delegate void TooltipControlRealeased();
+        public delegate void TooltipInControlActivated();
+
         public enum TableViewMode { NORMAL, SATELLITE_ANCHOR}
         public enum TablePart { LEFT, RIGHT, TOP, BOTTOM, CENTER }
         const float MAX_RELATIVE_X = 0.5f;
@@ -54,6 +56,7 @@ namespace SatelliteClientApp
         public event EdgeFocusChanged edgeFocusChangeEventHandler = null;
         public event TableFocusChanged tableFocusChangedEventHandler = null;
         public event TooltipControlRealeased tooltipControlReleasedEventHandler = null;
+        public event TooltipInControlActivated tooltilControlledActivatedEventHandler = null;
 
         private Bitmap _circleMask;
         private Bitmap _highlightCircle;
@@ -98,6 +101,10 @@ namespace SatelliteClientApp
         public PointF RelativeContentFocusCenter
         {
             get; set;
+        }
+        public PointF AbsFocusPosOnInView
+        {
+            get;set;
         }
         public double TableRotation
         {
@@ -150,8 +157,8 @@ namespace SatelliteClientApp
                         SolidBrush semiWhite = new SolidBrush(System.Drawing.Color.FromArgb(50, 255, 255, 255));
                         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                         g.FillRectangle(transparentBrush, new RectangleF(0, 0, _highlightCircle.Width, _highlightCircle.Height));
-                        g.FillEllipse(semiWhite, new RectangleF(5, 5, _highlightCircle.Width - 5, _highlightCircle.Height-5));
-                        g.DrawEllipse(new System.Drawing.Pen(highlightBrush, 3), new RectangleF(5, 5, _highlightCircle.Width-5, _highlightCircle.Height-5));
+                        g.FillEllipse(semiWhite, new RectangleF(5, 5, _highlightCircle.Width - 10, _highlightCircle.Height-10));
+                        g.DrawEllipse(new System.Drawing.Pen(highlightBrush, 3), new RectangleF(5, 5, _highlightCircle.Width-10, _highlightCircle.Height-10));
                     }
                 }
                 return _highlightCircle;
@@ -188,6 +195,13 @@ namespace SatelliteClientApp
         public void resetMouseState()
         {
             isMouseDownOnEdge = false;
+            if(isMouseDownOnTable)
+            {
+                if(tooltipControlReleasedEventHandler != null)
+                {
+                    tooltipControlReleasedEventHandler();
+                }
+            }
             isMouseDownOnTable = false;
         }
         #endregion
@@ -239,7 +253,8 @@ namespace SatelliteClientApp
                 img_TableContentFocus.Opacity = 1;
                 if (tableFocusChangedEventHandler != null)
                 {
-                    tableFocusChangedEventHandler(tableFocus, RelativeContentFocusCenter.X, RelativeContentFocusCenter.Y);
+                    PointF rotatedFocusCenter = Utilities.RotatePointAroundPoint(new PointF(0, 0), RelativeContentFocusCenter, TableRotation);
+                    tableFocusChangedEventHandler(tableFocus, rotatedFocusCenter.X, rotatedFocusCenter.Y,TableRotation);
                 }
             }
             try {
@@ -542,31 +557,31 @@ namespace SatelliteClientApp
             relW = tableSizeNormalized.X / tablePeriphery;
             relH = 1;
             edges[0] = Utilities.CropBitmap(panoImg, relL, relT, relW, relH);
-            edges[0] = Utilities.skewBitmap(edges[0], this.Width/downScaleFactor, img_TableContent.Width/downScaleFactor, edgeThick/downScaleFactor);
+            edges[0] = Utilities.SkewBitmap(edges[0], this.Width/downScaleFactor, img_TableContent.Width/downScaleFactor, edgeThick/downScaleFactor);
             //crop right edge
             relL = (tableSizeNormalized.X * 3 / 2 + tableSizeNormalized.Y) / tablePeriphery;
             relT = 0;
             relW = tableSizeNormalized.Y / tablePeriphery;
             relH = 1;
             edges[1] = Utilities.CropBitmap(panoImg, relL, relT, relW, relH);
-            edges[1] = Utilities.skewBitmap(edges[1], this.Height/downScaleFactor, img_TableContent.Height/downScaleFactor, edgeThick/downScaleFactor);
-            edges[1] = Utilities.rotateBitmapQuadraticAngle(edges[1], 90);
+            edges[1] = Utilities.SkewBitmap(edges[1], this.Height/downScaleFactor, img_TableContent.Height/downScaleFactor, edgeThick/downScaleFactor);
+            edges[1] = Utilities.RotateBitmapQuadraticAngle(edges[1], 90);
             //crop left edge
             relL = tableSizeNormalized.X / (2*tablePeriphery);
             relT = 0;
             relW = tableSizeNormalized.Y / tablePeriphery;
             relH = 1;
             edges[3] = Utilities.CropBitmap(panoImg, relL, relT, relW, relH);
-            edges[3] = Utilities.skewBitmap(edges[3], this.Height/downScaleFactor, img_TableContent.Height/downScaleFactor, edgeThick/downScaleFactor);
-            edges[3] = Utilities.rotateBitmapQuadraticAngle(edges[3], -90);
+            edges[3] = Utilities.SkewBitmap(edges[3], this.Height/downScaleFactor, img_TableContent.Height/downScaleFactor, edgeThick/downScaleFactor);
+            edges[3] = Utilities.RotateBitmapQuadraticAngle(edges[3], -90);
             //crop bottom edge
             relL = (tableSizeNormalized.X * 3 / 2 + 2 * tableSizeNormalized.Y) / tablePeriphery;
             relT = 0;
             relW = tableSizeNormalized.X/tablePeriphery;
             relH = 1;
             edges[2] = Utilities.CropBitmap(panoImg, relL, relT, relW, relH);
-            edges[2] = Utilities.skewBitmap(edges[2], this.Width/downScaleFactor, img_TableContent.Width/downScaleFactor, edgeThick/downScaleFactor);
-            edges[2] = Utilities.rotateBitmapQuadraticAngle(edges[2], 180);
+            edges[2] = Utilities.SkewBitmap(edges[2], this.Width/downScaleFactor, img_TableContent.Width/downScaleFactor, edgeThick/downScaleFactor);
+            edges[2] = Utilities.RotateBitmapQuadraticAngle(edges[2], 180);
             return edges;
         }
         
@@ -837,10 +852,15 @@ namespace SatelliteClientApp
                     {
                         System.Windows.Point globalMousePos = e.GetPosition(this);
                         globalMousePos = ensurePointCompletelyInTable(globalMousePos);
+                        AbsFocusPosOnInView = new PointF((float)globalMousePos.X, (float)globalMousePos.Y);
                         PointF relPos = getRelativePosOnTable(new PointF((float)globalMousePos.X, (float)globalMousePos.Y));
                         RelativeContentFocusCenter = relPos;
                         updateContentFocus(relPos,true);
                         isMouseDownOnTable = true;
+                        if(tooltilControlledActivatedEventHandler != null)
+                        {
+                            tooltilControlledActivatedEventHandler();
+                        }
                     }
                 }
             }
@@ -876,6 +896,7 @@ namespace SatelliteClientApp
                 {
                     System.Windows.Point globalMousePos = e.GetPosition(this);
                     globalMousePos = ensurePointCompletelyInTable(globalMousePos);
+                    AbsFocusPosOnInView = new PointF((float)globalMousePos.X, (float)globalMousePos.Y);
                     PointF relPos = getRelativePosOnTable(new PointF((float)globalMousePos.X, (float)globalMousePos.Y));
                     RelativeContentFocusCenter = relPos;
                     updateContentFocus(relPos,true);
@@ -900,8 +921,9 @@ namespace SatelliteClientApp
             }
             resetMouseState();
         }
-        
 
         #endregion
+
+
     }
 }

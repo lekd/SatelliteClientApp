@@ -169,7 +169,16 @@
     <Resource Include="Resources\unknown_user.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\rotation_handle.png">
+    <Resource Include="Resources\AnchorButton_Pressed.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\AnchorButton_UnPressed.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\SaveButton_Pressed.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\SaveButton_UnPressed.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
