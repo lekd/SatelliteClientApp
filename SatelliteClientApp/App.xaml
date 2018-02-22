@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:SatelliteClientApp"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary Source="CustomResourceDictionary.xaml"/>
     </Application.Resources>
 </Application>

@@ -25,6 +25,16 @@ namespace SatelliteClientApp
         const double tablePadding = 20;
         public event HubTableViewerControl.EdgeFocusChanged edgeFocusChangedEventHandler = null;
         Rect _panoFocusBoundary;
+        protected PointF FixedTooltipCenter
+        {
+            get
+            {
+                PointF fixedPos = new PointF();
+                fixedPos.X = (float)(canvasContainer.Width - tableFocusTooltip.Width - 100);
+                fixedPos.Y = (float)(tableFocusTooltip.Height / 2 + 5);
+                return fixedPos;
+            }
+        }
         public Rect PanoFocusBoundary
         {
             get
@@ -64,6 +74,10 @@ namespace SatelliteClientApp
             Bitmap rotatedFocus = Utilities.RotateBitmapQuadraticAngle(tableFocus, tableRotation * 180 / Math.PI);
             tableFocusTooltip.updateToolTipContent(rotatedFocus);
             PointF absoluteCenter = getToolTipAbsoluteCenterFromRelativeOne(new PointF((float)relPosX, (float)relPosY));
+            if(!Properties.Settings.Default.GazeRedirecting)
+            {
+                absoluteCenter = FixedTooltipCenter;
+            }
             double tooltipLeft = absoluteCenter.X - tableFocusTooltip.Width / 2;
             double tooltipTop = absoluteCenter.Y - tableFocusTooltip.Width / 2;
             tableFocusTooltip.SetValue(Canvas.LeftProperty, tooltipLeft);
@@ -203,6 +217,10 @@ namespace SatelliteClientApp
         {
             System.Windows.Point focusCenterGlobalPos = hubTableViewer.TranslatePoint(new System.Windows.Point(focusCenterOnTable.X, focusCenterOnTable.Y), this);
             PointF absTooltipCenter = getToolTipAbsoluteCenterFromRelativeOne(tooltipRelativeCenter);
+            if(!Properties.Settings.Default.GazeRedirecting)
+            {
+                absTooltipCenter = FixedTooltipCenter;
+            }
             double dist_tooltip2Focus = Utilities.DistanceBetweenTwoPoints(focusCenterGlobalPos.X, focusCenterGlobalPos.Y, absTooltipCenter.X, absTooltipCenter.Y);
             Vector XAxis = new Vector(dist_tooltip2Focus, 0);
             Vector toolTipVector = new Vector(absTooltipCenter.X - focusCenterGlobalPos.X, absTooltipCenter.Y - focusCenterGlobalPos.Y);

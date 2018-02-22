@@ -25,7 +25,7 @@ namespace SatelliteClientApp.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("192.168.0.103")]
+        [global::System.Configuration.DefaultSettingValueAttribute("192.168.0.100")]
         public string PanoServer {
             get {
                 return ((string)(this["PanoServer"]));
@@ -74,6 +74,15 @@ namespace SatelliteClientApp.Properties {
         public bool AnchorButtonEnable {
             get {
                 return ((bool)(this["AnchorButtonEnable"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool GazeRedirecting {
+            get {
+                return ((bool)(this["GazeRedirecting"]));
             }
         }
     }

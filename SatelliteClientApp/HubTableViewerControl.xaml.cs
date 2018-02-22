@@ -870,7 +870,7 @@ namespace SatelliteClientApp
             TablePart touchedPart = getTablePartFromUIElement(sender);
             if (touchedPart != TablePart.CENTER)
             {
-                if (isMouseDownOnEdge)
+                if (isMouseDownOnEdge && e.LeftButton == MouseButtonState.Pressed)
                 { 
                     System.Windows.Point globalMousePos = e.GetPosition(this);
                     PointF relativeToTable = getTableRelativePositionFromAbsoluteOne(new PointF((float)globalMousePos.X, (float)globalMousePos.Y));
@@ -892,7 +892,7 @@ namespace SatelliteClientApp
             }
             else
             {
-                if (_viewMode == TableViewMode.NORMAL && isMouseDownOnTable)
+                if (_viewMode == TableViewMode.NORMAL && isMouseDownOnTable && e.LeftButton == MouseButtonState.Pressed)
                 {
                     System.Windows.Point globalMousePos = e.GetPosition(this);
                     globalMousePos = ensurePointCompletelyInTable(globalMousePos);

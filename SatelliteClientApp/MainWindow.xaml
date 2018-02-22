@@ -31,8 +31,10 @@
         </Grid>
         <Button x:Name="btn_Mode"
                 Width="60"
+                Height="60"
+                Style="{StaticResource ResourceKey=AnchorButton}"
                 Canvas.Bottom="10" Canvas.Right="10"
-                Click="btn_Mode_Click">ANCHOR</Button>
+                Click="btn_Mode_Click"></Button>
     </Canvas>
     
 </Window>

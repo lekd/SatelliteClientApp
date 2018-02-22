@@ -93,11 +93,11 @@ namespace SatelliteClientApp
             if (hubTableViewer.ViewMode == HubTableViewerControl.TableViewMode.NORMAL)
             {
                 hubTableViewer.Refresh();
-                btn_Mode.Content = "ANCHOR";
+                btn_Mode.Style = this.FindResource("AnchorButton") as Style;
             }
             else
             {
-                btn_Mode.Content = "SAVE";
+                btn_Mode.Style = this.FindResource("OkButton") as Style;
             }
         }
         private void HubTableViewer_edgeFocusChangedEventHandler(PointF relPos, double relAngularToSallite, double relativeW)
