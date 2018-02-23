@@ -351,10 +351,10 @@ namespace SatelliteClientApp
         {
             var fadeOutAnim = new DoubleAnimation
             {
-                From = 1,
+                From =control.Opacity,
                 To = 0,
                 BeginTime = TimeSpan.FromSeconds(delay),
-                Duration = TimeSpan.FromSeconds(duration),
+                Duration = TimeSpan.FromSeconds(duration*(control.Opacity-0)/1.0),
                 FillBehavior = FillBehavior.Stop
             };
             fadeOutAnim.Completed += (s, a) => {
