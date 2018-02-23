@@ -43,8 +43,15 @@ namespace SatelliteClientApp
         {
             initControls();
             Bitmap temp = Utilities.BitmapImageToJpegBitmap(panoBmpImg);
-            Bitmap rearrangedPano = rearrangePano(temp, satPosInPano);
-            panoFrame = new Bitmap(rearrangedPano);
+            if (Properties.Settings.Default.GazeRedirecting)
+            {
+                Bitmap rearrangedPano = rearrangePano(temp, satPosInPano);
+                panoFrame = new Bitmap(rearrangedPano);
+            }
+            else
+            {
+                panoFrame = new Bitmap(temp);
+            }
             imgPano.Source = Utilities.ToBitmapImage(panoFrame,ImageFormat.Jpeg);
         }
         void initControls()
@@ -89,12 +96,16 @@ namespace SatelliteClientApp
         bool isMouseDown = false;
         private void imgPano_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            
             if(e.LeftButton == MouseButtonState.Pressed)
             {
                 isMouseDown = true;
                 System.Windows.Point mousePos = e.GetPosition(imgPano);
                 changeFocusWindowPosition(mousePos.X);
-                notifyPanoFocusChanged(mousePos.X);
+                if (Properties.Settings.Default.GazeRedirecting)
+                {
+                    notifyPanoFocusChanged(mousePos.X);
+                }
             }
         }
 
@@ -104,7 +115,10 @@ namespace SatelliteClientApp
             {
                 System.Windows.Point mousePos = e.GetPosition(imgPano);
                 changeFocusWindowPosition(mousePos.X);
-                notifyPanoFocusChanged(mousePos.X);
+                if (Properties.Settings.Default.GazeRedirecting)
+                {
+                    notifyPanoFocusChanged(mousePos.X);
+                }
             }
         }
         private void imgPano_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)

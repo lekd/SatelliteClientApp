@@ -24,6 +24,8 @@ namespace SatelliteClientApp
     {
         StreamingClient panoStreamClient;
         StreamingClient tableContentStreamClient;
+        CamRetriever satCam = null;
+        StreamingServer satVidStreamer = null;
         public MainWindow()
         {
             InitializeComponent();
@@ -37,7 +39,44 @@ namespace SatelliteClientApp
 
             hubTableViewer.edgeFocusChangedEventHandler += HubTableViewer_edgeFocusChangedEventHandler;
             hubTableViewer.PanoFocusBoundary = panoViewer.FocusBoundary;
+            hubTableViewer.readyToDisplaySatelliteEventHandler += HubTableViewer_readyToDisplaySatelliteEventHandler;
             panoViewer.panoFocusPosChangedHandler += hubTableViewer.panoFocusPosChangedHandler;
+
+            if(Properties.Settings.Default.SatelliteRecording)
+            {
+                string[] camsList = CamRetriever.getCameraList();
+                satCam = new CamRetriever(0);
+                satCam.CropArea = new RectangleF(Properties.Settings.Default.AvatarCropLeft,
+                                                    Properties.Settings.Default.AvatarCropTop,
+                                                    Properties.Settings.Default.AvatarCropWidth,
+                                                    Properties.Settings.Default.AvatarCropHeight);
+                satCam.NewFrameAvailableEvent += SatCam_NewFrameAvailableEvent;
+                
+            }
+        }
+
+        private void HubTableViewer_readyToDisplaySatelliteEventHandler(bool isReady)
+        {
+            if(isReady)
+            {
+                if(satCam != null && !satCam.IsStarted)
+                {
+                    satCam.Start();
+                    satVidStreamer = new StreamingServer(satCam.GrabFrames());
+                    satVidStreamer.Start(Properties.Settings.Default.SatVideoPort);
+                }
+            }
+        }
+
+        private void SatCam_NewFrameAvailableEvent(int camIndex, Bitmap bmp)
+        {
+            bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
+            Action displayAvatar = delegate
+            {
+                Bitmap downScale = Utilities.DownScaleBitmap(bmp, 8);
+                hubTableViewer.updateSatelliteVideoFrame(downScale);
+            };
+            hubTableViewer.Dispatcher.Invoke(displayAvatar);
         }
 
         private void mainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -48,8 +87,13 @@ namespace SatelliteClientApp
             hubTableViewer.setWidth(w);
             hubTableViewer.setHeight(h);
             hubTableViewer.updateUIWithNewSize();
-            //panoStreamClient.Start();
-            //tableContentStreamClient.Start();
+        }
+        private void mainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            satCam?.Close();
+            satCam = null;
+            satVidStreamer?.Stop();
+            satVidStreamer = null;
         }
         private void Stream_NewFrameAvailableListener(int port, BitmapImage frameSrc)
         {
@@ -107,5 +151,7 @@ namespace SatelliteClientApp
         }
 
         #endregion
+
+        
     }
 }

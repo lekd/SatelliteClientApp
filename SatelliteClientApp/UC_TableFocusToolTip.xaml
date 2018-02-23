@@ -26,7 +26,10 @@
             </Path.Data>
         </Path>
         <Path Fill="#FF00FFFF" Stroke="Transparent" x:Name="handleShape"
-              IsHitTestVisible="False">
+              MouseLeftButtonDown="handleShape_MouseLeftButtonDown"
+              MouseMove="handleShape_MouseMove"
+              MouseLeftButtonUp="handleShape_MouseLeftButtonUp"
+              MouseLeave="handleShape_MouseLeave">
             <Path.Data>
                 <CombinedGeometry GeometryCombineMode="Exclude">
                     <CombinedGeometry.Geometry1>

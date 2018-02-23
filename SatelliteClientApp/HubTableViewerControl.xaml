@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:SatelliteClientApp"
              mc:Ignorable="d" 
              x:Name="mainView"
+             Background="#111111"
              d:DesignHeight="1000" d:DesignWidth="700">
 
     <Canvas HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="mainContainer"

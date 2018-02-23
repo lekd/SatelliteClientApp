@@ -57,6 +57,7 @@ namespace SatelliteClientApp
         public event TableFocusChanged tableFocusChangedEventHandler = null;
         public event TooltipControlRealeased tooltipControlReleasedEventHandler = null;
         public event TooltipInControlActivated tooltilControlledActivatedEventHandler = null;
+        
 
         private Bitmap _circleMask;
         private Bitmap _highlightCircle;
@@ -174,7 +175,13 @@ namespace SatelliteClientApp
             InitializeComponent();
             _tableContent = new Bitmap(1, 1);
             WasInitialized = false;
-            
+            if(!Properties.Settings.Default.GazeRedirecting)
+            {
+                img_EdgeTop.Opacity = 0;
+                img_EdgeBottom.Opacity = 0;
+                img_EdgeLeft.Opacity = 0;
+                img_EdgeRight.Opacity = 0;
+            }
         }
         #region global command
         public void SwitchMode()
@@ -219,7 +226,7 @@ namespace SatelliteClientApp
                 
             }
             _tableContent = new Bitmap(tabContent);
-            Bitmap downscaledContent = Utilities.DownScaleBitmap(_tableContent, 4);
+            Bitmap downscaledContent = Utilities.DownScaleBitmap(_tableContent, 8);
             BitmapImage src = Utilities.ToBitmapImage(downscaledContent, ImageFormat.Jpeg);
             img_TableContent.Source = src;
             img_TableContent.Tag = downscaledContent;
@@ -463,6 +470,17 @@ namespace SatelliteClientApp
             }
         }
         
+        public void updateSatelliteVideoFrame(Bitmap satVidFrame)
+        {
+            Bitmap buf = new Bitmap(satVidFrame);
+            double vidFrameRatio = buf.Width*1.0 / buf.Height;
+
+            if(img_satAvatar.Width/img_satAvatar.Height != vidFrameRatio)
+            {
+                img_satAvatar.Width = img_satAvatar.Height * vidFrameRatio;
+            }
+            img_satAvatar.Source = Utilities.ToBitmapImage(buf, ImageFormat.Jpeg);
+        }
         #endregion
         
         #region satellite avatar
@@ -836,6 +854,10 @@ namespace SatelliteClientApp
                     }
                     else
                     {
+                        if(!Properties.Settings.Default.GazeRedirecting)
+                        {
+                            return;
+                        }
                         RelativeEdgeFocusCenter = relativeToTable;
                         double relativeAngularDif = getAngularPositionRelativeToSatellite(relativeToTable, SatRelativePosition);
                         updateEdgeFocus(relativeToTable);
@@ -880,6 +902,10 @@ namespace SatelliteClientApp
                     }
                     else
                     {
+                        if(!Properties.Settings.Default.GazeRedirecting)
+                        {
+                            return;
+                        }
                         RelativeEdgeFocusCenter = relativeToTable;
                         double relativeAngularDif = getAngularPositionRelativeToSatellite(relativeToTable, SatRelativePosition);
                         updateEdgeFocus(relativeToTable);
@@ -906,7 +932,7 @@ namespace SatelliteClientApp
         private void TableMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             //start fade-out animation
-            if(isMouseDownOnEdge)
+            if(isMouseDownOnEdge && Mode == TableViewMode.NORMAL)
             {
                 
                 Utilities.FadeControlOut(img_EdgeFocus, 1, 2, false);

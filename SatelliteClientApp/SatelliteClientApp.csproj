@@ -97,10 +97,12 @@
     <Compile Include="HubTableViewerControl.xaml.cs">
       <DependentUpon>HubTableViewerControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MjpegWriter.cs" />
     <Compile Include="PanoViewer.xaml.cs">
       <DependentUpon>PanoViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="StreamingClient.cs" />
+    <Compile Include="StreamingServer.cs" />
     <Compile Include="UC_TableFocusToolTip.xaml.cs">
       <DependentUpon>UC_TableFocusToolTip.xaml</DependentUpon>
     </Compile>

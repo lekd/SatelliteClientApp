@@ -20,6 +20,13 @@ namespace SatelliteClientApp
         public Bitmap CurrentFrame { get; set; }
         public RectangleF CropArea { get; set; }
         private bool isRunning = false;
+        public bool IsStarted
+        {
+            get
+            {
+                return isRunning;
+            }
+        }
         public CamRetriever(int camIndex)
         {
             CamIndex = camIndex;
@@ -31,7 +38,7 @@ namespace SatelliteClientApp
             if (CamIndex >= 0)
             {
                 camCapture = new VideoCapture(CamIndex);
-                if (camCapture != null && camCapture.Ptr != IntPtr.Zero)
+                if (camCapture != null && camCapture.Ptr != IntPtr.Zero )
                 {
                     camCapture.ImageGrabbed += ProcessFrame;
                     camCapture.Start();
@@ -67,9 +74,9 @@ namespace SatelliteClientApp
                         NewFrameAvailableEvent(CamIndex, bmp);
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
-
+                    string msg = ex.Message;
                 }
 
             }

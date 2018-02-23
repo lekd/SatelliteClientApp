@@ -22,8 +22,11 @@ namespace SatelliteClientApp
     /// </summary>
     public partial class AugmentedHubTableViewer : UserControl
     {
+
+        public delegate void ReadyToDisplaySatellite(bool isReady);
         const double tablePadding = 20;
         public event HubTableViewerControl.EdgeFocusChanged edgeFocusChangedEventHandler = null;
+        public event ReadyToDisplaySatellite readyToDisplaySatelliteEventHandler = null;
         Rect _panoFocusBoundary;
         protected PointF FixedTooltipCenter
         {
@@ -139,10 +142,18 @@ namespace SatelliteClientApp
         {
             
             hubTableViewer.updateTableContent(tableContent, maxW, maxH- 2*tablePadding);
+            if(readyToDisplaySatelliteEventHandler != null)
+            {
+                readyToDisplaySatelliteEventHandler(true);
+            }
         }
         public void updateTableEdgesImages(Bitmap panoImage)
         {
             hubTableViewer.updateTableEdges(panoImage);
+        }
+        public void updateSatelliteVideoFrame(Bitmap satVidFrame)
+        {
+            hubTableViewer.updateSatelliteVideoFrame(satVidFrame);
         }
         public void switchMode()
         {

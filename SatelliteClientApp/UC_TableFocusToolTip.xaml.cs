@@ -73,8 +73,8 @@ namespace SatelliteClientApp
             handleShape.SetValue(Canvas.TopProperty, (double)0);
             //update tooltip
             
-            toolTipContent.Width = Diameter * (RelativeInnerRingSizeToOuterRing - 0.024);
-            toolTipContent.Height = Diameter * (RelativeInnerRingSizeToOuterRing - 0.024);
+            toolTipContent.Width = Diameter * (RelativeInnerRingSizeToOuterRing - 0.03);
+            toolTipContent.Height = Diameter * (RelativeInnerRingSizeToOuterRing - 0.03);
             double toolTipLeft = (Diameter - toolTipContent.Width) / 2;
             double toolTipTop = (Diameter - toolTipContent.Height) / 2;
             toolTipContent.SetValue(Canvas.LeftProperty, toolTipLeft);
@@ -91,14 +91,8 @@ namespace SatelliteClientApp
         }
         public void enableTouch(bool isTouchEnabled)
         {
-            if(isTouchEnabled)
-            {
-                handleContainer.IsHitTestVisible = true;
-            }
-            else
-            {
-                handleContainer.IsHitTestVisible = false;
-            }
+            handleContainer.IsHitTestVisible = isTouchEnabled;
+            handleShape.IsHitTestVisible = isTouchEnabled;
         }
         #region mouse events
         private void handleContainer_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -109,6 +103,46 @@ namespace SatelliteClientApp
                 System.Windows.Point curMousePos = e.GetPosition(this);
                 rotateToPoint(curMousePos);
             }
+        }
+        bool isMousePressedOnHandle = false;
+        System.Windows.Point prevMousePosOnHandle = new System.Windows.Point();
+        private void handleShape_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if(e.LeftButton == MouseButtonState.Pressed)
+            {
+                isMousePressedOnHandle = true;
+                prevMousePosOnHandle = e.GetPosition(this);
+            }
+        }
+
+        private void handleShape_MouseMove(object sender, MouseEventArgs e)
+        {
+            if(e.LeftButton == MouseButtonState.Pressed && isMousePressedOnHandle)
+            {
+                System.Windows.Point curMousePosOnHandle = e.GetPosition(this);
+                Vector prevToCenter = new Vector(prevMousePosOnHandle.X - absoluteCenter.X, prevMousePosOnHandle.Y - absoluteCenter.Y);
+                Vector curToCenter = new Vector(curMousePosOnHandle.X - absoluteCenter.X, curMousePosOnHandle.Y - absoluteCenter.Y);
+                double rotAngle = Vector.AngleBetween(prevToCenter, curToCenter);
+                tooltipRotationAngle += rotAngle;
+                if (tooltipRotationAngle >= 360)
+                {
+                    tooltipRotationAngle -= 360;
+                }
+                if (tooltipRotationAngle < 0)
+                {
+                    tooltipRotationAngle += 360;
+                }
+                (mainContainer.RenderTransform as RotateTransform).Angle = tooltipRotationAngle;
+            }
+        }
+        private void handleShape_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            isMousePressedOnHandle = false;
+        }
+
+        private void handleShape_MouseLeave(object sender, MouseEventArgs e)
+        {
+            isMousePressedOnHandle = false;
         }
         #endregion
         #region rotate tooltip
@@ -127,6 +161,9 @@ namespace SatelliteClientApp
             }
             (mainContainer.RenderTransform as RotateTransform).Angle = tooltipRotationAngle;
         }
+        
         #endregion
+
+
     }
 }
