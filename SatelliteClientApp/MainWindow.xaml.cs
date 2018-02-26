@@ -94,6 +94,8 @@ namespace SatelliteClientApp
             satCam = null;
             satVidStreamer?.Stop();
             satVidStreamer = null;
+
+            
         }
         private void Stream_NewFrameAvailableListener(int port, BitmapImage frameSrc)
         {

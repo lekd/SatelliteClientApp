@@ -25,7 +25,7 @@ namespace SatelliteClientApp.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("192.168.0.100")]
+        [global::System.Configuration.DefaultSettingValueAttribute("192.168.0.102")]
         public string PanoServer {
             get {
                 return ((string)(this["PanoServer"]));
@@ -88,7 +88,7 @@ namespace SatelliteClientApp.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.2")]
         public float AvatarCropLeft {
             get {
                 return ((float)(this["AvatarCropLeft"]));
@@ -106,7 +106,7 @@ namespace SatelliteClientApp.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.6")]
         public float AvatarCropWidth {
             get {
                 return ((float)(this["AvatarCropWidth"]));

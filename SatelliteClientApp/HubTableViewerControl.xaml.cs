@@ -35,7 +35,7 @@ namespace SatelliteClientApp
         const float MAX_RELATIVE_X = 0.5f;
         const float MAX_RELATIVE_Y = 0.5f;
         private System.Windows.Size defaultFocusWindowSize = new System.Windows.Size();
-        private System.Windows.Size RelativeTableFocusSize = new System.Windows.Size(0.2f, 0.2f);
+        private System.Windows.Size RelativeTableFocusSize = new System.Windows.Size(0.25f, 0.25f);
 
         Bitmap _tableContent;
         Bitmap _satAvatarBmp = new Bitmap(1, 1);
