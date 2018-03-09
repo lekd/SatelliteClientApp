@@ -25,7 +25,7 @@ namespace SatelliteClientApp.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("192.168.0.102")]
+        [global::System.Configuration.DefaultSettingValueAttribute("192.168.0.100")]
         public string PanoServer {
             get {
                 return ((string)(this["PanoServer"]));
@@ -137,6 +137,24 @@ namespace SatelliteClientApp.Properties {
         public int SatVideoPort {
             get {
                 return ((int)(this["SatVideoPort"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("/Resources/DefaultPano.jpg")]
+        public string DefaultPanoImage {
+            get {
+                return ((string)(this["DefaultPanoImage"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("/Resources/Table_3x3.jpg")]
+        public string DefaultTableImage {
+            get {
+                return ((string)(this["DefaultTableImage"]));
             }
         }
     }

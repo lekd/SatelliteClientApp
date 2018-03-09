@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="PanoServer" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">192.168.0.102</Value>
+      <Value Profile="(Default)">192.168.0.100</Value>
     </Setting>
     <Setting Name="PanoPort" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">4030</Value>
@@ -40,6 +40,12 @@
     </Setting>
     <Setting Name="SatVideoPort" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">4032</Value>
+    </Setting>
+    <Setting Name="DefaultPanoImage" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">/Resources/DefaultPano.jpg</Value>
+    </Setting>
+    <Setting Name="DefaultTableImage" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">/Resources/Table_3x3.jpg</Value>
     </Setting>
   </Settings>
 </SettingsFile>

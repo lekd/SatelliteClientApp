@@ -22,12 +22,14 @@ namespace SatelliteClientApp
     /// </summary>
     public partial class AugmentedHubTableViewer : UserControl
     {
-
+        const double TooltipArea_PaddingTop = 70;
+        const double TooltipArea_PaddingX = 0;
         public delegate void ReadyToDisplaySatellite(bool isReady);
         const double tablePadding = 20;
         public event HubTableViewerControl.EdgeFocusChanged edgeFocusChangedEventHandler = null;
         public event ReadyToDisplaySatellite readyToDisplaySatelliteEventHandler = null;
         Rect _panoFocusBoundary;
+        Rect AreaToShowContentTooltip = new Rect();
         protected PointF FixedTooltipCenter
         {
             get
@@ -105,7 +107,7 @@ namespace SatelliteClientApp
         private void HubTableViewer_boundaryChangeEventHandler(double w, double h)
         {
             //set position of the hubviewer control in this augmented control
-            double top = (this.Height - h) / 2;
+            double top = (this.Height - TooltipArea_PaddingTop - h)/2 + TooltipArea_PaddingTop;
             double left = (this.Width - w) / 2;
             hubTableViewer.SetValue(Canvas.LeftProperty, left);
             hubTableViewer.SetValue(Canvas.TopProperty, top);
@@ -124,12 +126,16 @@ namespace SatelliteClientApp
             this.Width = w;
             canvasContainer.Width = w;
             blankCanvas.Width = w;
+            AreaToShowContentTooltip.Width = w - 2 * TooltipArea_PaddingX;
+            AreaToShowContentTooltip.X = TooltipArea_PaddingX;
         }
         public void setHeight(double h)
         {
             this.Height = h;
             canvasContainer.Height = h;
             blankCanvas.Height = h;
+            AreaToShowContentTooltip.Height = h - TooltipArea_PaddingTop;
+            AreaToShowContentTooltip.Y = TooltipArea_PaddingTop;
         }
         public HubTableViewerControl.TableViewMode ViewMode
         {
@@ -141,7 +147,8 @@ namespace SatelliteClientApp
         public void updateTableContent(Bitmap tableContent,double maxW,double maxH)
         {
             
-            hubTableViewer.updateTableContent(tableContent, maxW, maxH- 2*tablePadding);
+
+            hubTableViewer.updateTableContent(tableContent, maxW, maxH- 2*tablePadding - TooltipArea_PaddingTop);
             if(readyToDisplaySatelliteEventHandler != null)
             {
                 readyToDisplaySatelliteEventHandler(true);
@@ -188,10 +195,10 @@ namespace SatelliteClientApp
         #region display bubble links
         PointF getToolTipAbsoluteCenterFromRelativeOne(PointF relativePos)
         {
-            double windowCenterX = this.Width / 2;
-            double windowCenterY = this.Height / 2;
-            double absCenterX = relativePos.X * (this.Width - tableFocusTooltip.Width) + windowCenterX;
-            double absCenterY = relativePos.Y * (this.Height - tableFocusTooltip.Height) + windowCenterY;
+            double windowCenterX = AreaToShowContentTooltip.Width / 2 + AreaToShowContentTooltip.Left;
+            double windowCenterY = AreaToShowContentTooltip.Height / 2 + AreaToShowContentTooltip.Top;
+            double absCenterX = relativePos.X * (AreaToShowContentTooltip.Width - tableFocusTooltip.Width) + windowCenterX;
+            double absCenterY = relativePos.Y * (AreaToShowContentTooltip.Height - tableFocusTooltip.Height) + windowCenterY;
             PointF absoluteCenter = new PointF((float)absCenterX, (float)absCenterY);
             return absoluteCenter;
         }
@@ -248,7 +255,7 @@ namespace SatelliteClientApp
             {
                 SolidBrush transparentBrush = new SolidBrush(System.Drawing.Color.Transparent);
                 g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                 float clippingW = (float)(tableFocusTooltip.Width - 2);
                 float clippingH = (float)(tableFocusTooltip.Height - 2);
                 g.FillEllipse(transparentBrush, new RectangleF((float)(tooltipLink.Width - clippingW / 2), (float)((tooltipLink.Height - clippingH)/2), clippingW, clippingH));

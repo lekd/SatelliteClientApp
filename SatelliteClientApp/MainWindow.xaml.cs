@@ -45,14 +45,14 @@ namespace SatelliteClientApp
             if(Properties.Settings.Default.SatelliteRecording)
             {
                 string[] camsList = CamRetriever.getCameraList();
-                satCam = new CamRetriever(0);
+                satCam = new CamRetriever(0,1280,720);
                 satCam.CropArea = new RectangleF(Properties.Settings.Default.AvatarCropLeft,
                                                     Properties.Settings.Default.AvatarCropTop,
                                                     Properties.Settings.Default.AvatarCropWidth,
                                                     Properties.Settings.Default.AvatarCropHeight);
                 satCam.NewFrameAvailableEvent += SatCam_NewFrameAvailableEvent;
-                
             }
+            this.KeyDown += MainWindow_KeyDown;
         }
 
         private void HubTableViewer_readyToDisplaySatelliteEventHandler(bool isReady)
@@ -68,12 +68,12 @@ namespace SatelliteClientApp
             }
         }
 
-        private void SatCam_NewFrameAvailableEvent(int camIndex, Bitmap bmp)
+        private void SatCam_NewFrameAvailableEvent(object sender, Bitmap bmp)
         {
-            bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
+            //bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
             Action displayAvatar = delegate
             {
-                Bitmap downScale = Utilities.DownScaleBitmap(bmp, 8);
+                Bitmap downScale = Utilities.DownScaleBitmap(bmp, 1);
                 hubTableViewer.updateSatelliteVideoFrame(downScale);
             };
             hubTableViewer.Dispatcher.Invoke(displayAvatar);
@@ -88,14 +88,45 @@ namespace SatelliteClientApp
             hubTableViewer.setHeight(h);
             hubTableViewer.updateUIWithNewSize();
         }
+        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.L))
+            {
+                LoadDefaultVideoImages();
+            }
+        }
+        void LoadDefaultVideoImages()
+        {
+            Bitmap tableContent = new Bitmap(Environment.CurrentDirectory + Properties.Settings.Default.DefaultTableImage);
+            Action displayAction = delegate
+            {
+                
+                double w = grid_ViewsContainer.ActualWidth;
+                double h = grid_ViewsContainer.RowDefinitions[1].ActualHeight;
+                hubTableViewer.updateTableContent(tableContent, w, h);
+            };
+            hubTableViewer.Dispatcher.Invoke(displayAction);
+            Bitmap panoImg = new Bitmap(Environment.CurrentDirectory + Properties.Settings.Default.DefaultPanoImage);
+            Action displayPanoViewer = delegate
+            {
+                BitmapImage bmpSrc = Utilities.ToBitmapImage(panoImg,ImageFormat.Jpeg);
+                panoViewer.updatePanoImage(bmpSrc, hubTableViewer.SatPositionInPano);
+
+            };
+            panoViewer.Dispatcher.Invoke(displayPanoViewer);
+            Action displayHubViewer = delegate
+            {
+                Bitmap downScaledPano = Utilities.DownScaleBitmap(panoImg, 8);
+                hubTableViewer.updateTableEdgesImages(downScaledPano);
+            };
+            hubTableViewer.Dispatcher.Invoke(displayHubViewer);
+        }
         private void mainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             satCam?.Close();
             satCam = null;
             satVidStreamer?.Stop();
             satVidStreamer = null;
-
-            
         }
         private void Stream_NewFrameAvailableListener(int port, BitmapImage frameSrc)
         {

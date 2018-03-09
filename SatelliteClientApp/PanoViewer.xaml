@@ -21,6 +21,6 @@
                    Opacity="0"
                    Width="30" Height="{Binding ActualHeight, ElementName=mainContainer}"
                    IsHitTestVisible="False"
-                   Stroke="Cyan" StrokeThickness="2"></Rectangle>
+                   Stroke="Cyan" StrokeThickness="4"></Rectangle>
     </Canvas>
 </UserControl>

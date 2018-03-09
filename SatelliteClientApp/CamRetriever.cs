@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SatelliteClientApp
 {
-    public delegate void CamNewFrameEventHandler(int camIndex, Bitmap bmp);
+    public delegate void CamNewFrameEventHandler(object sender, Bitmap bmp);
     public class CamRetriever
     {
         const int UPDATE_INTERVAL = 80;
@@ -20,6 +20,8 @@ namespace SatelliteClientApp
         public Bitmap CurrentFrame { get; set; }
         public RectangleF CropArea { get; set; }
         private bool isRunning = false;
+        int frameWidth = 640;
+        int frameHeight = 480;
         public bool IsStarted
         {
             get
@@ -27,17 +29,21 @@ namespace SatelliteClientApp
                 return isRunning;
             }
         }
-        public CamRetriever(int camIndex)
+        public CamRetriever(int camIndex, int frameW=640,int frameH=480)
         {
             CamIndex = camIndex;
             lastUpdate = DateTime.Now;
             CropArea = new RectangleF(0, 0, 1, 1);
+            frameWidth = frameW;
+            frameHeight = frameH;
         }
         public void Start()
         {
             if (CamIndex >= 0)
             {
                 camCapture = new VideoCapture(CamIndex);
+                camCapture.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.FrameWidth, frameWidth);
+                camCapture.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.FrameHeight, frameHeight);
                 if (camCapture != null && camCapture.Ptr != IntPtr.Zero )
                 {
                     camCapture.ImageGrabbed += ProcessFrame;
@@ -71,7 +77,7 @@ namespace SatelliteClientApp
                     CurrentFrame = bmp;
                     if (NewFrameAvailableEvent != null)
                     {
-                        NewFrameAvailableEvent(CamIndex, bmp);
+                        NewFrameAvailableEvent(this, bmp);
                     }
                 }
                 catch(Exception ex)

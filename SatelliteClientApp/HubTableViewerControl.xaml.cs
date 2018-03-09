@@ -226,7 +226,7 @@ namespace SatelliteClientApp
                 
             }
             _tableContent = new Bitmap(tabContent);
-            Bitmap downscaledContent = Utilities.DownScaleBitmap(_tableContent, 8);
+            Bitmap downscaledContent = Utilities.DownScaleBitmap(_tableContent, 16);
             BitmapImage src = Utilities.ToBitmapImage(downscaledContent, ImageFormat.Jpeg);
             img_TableContent.Source = src;
             img_TableContent.Tag = downscaledContent;

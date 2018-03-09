@@ -341,7 +341,7 @@ namespace SatelliteClientApp
             SolidBrush semiCyanBrush = new SolidBrush(Color.FromArgb(100, Color.Cyan));
             using (var g = Graphics.FromImage(bmp))
             {
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                 g.FillRectangle(transparentBrush, new Rectangle(0, 0, bmp.Width, bmp.Height));
                 g.FillPolygon(semiCyanBrush, vertices);
             }
